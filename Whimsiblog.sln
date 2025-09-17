@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Whimsiblog", "Whimsiblog\Whimsiblog.csproj", "{115B6135-7469-49F0-AF6C-8C17702D2596}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Whimsiblog", "Whimsiblog\Whimsiblog.csproj", "{115B6135-7469-49F0-AF6C-8C17702D2596}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{3701026C-4BFD-4800-A13F-1AB636BD374A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{115B6135-7469-49F0-AF6C-8C17702D2596}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{115B6135-7469-49F0-AF6C-8C17702D2596}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{115B6135-7469-49F0-AF6C-8C17702D2596}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3701026C-4BFD-4800-A13F-1AB636BD374A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3701026C-4BFD-4800-A13F-1AB636BD374A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3701026C-4BFD-4800-A13F-1AB636BD374A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3701026C-4BFD-4800-A13F-1AB636BD374A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

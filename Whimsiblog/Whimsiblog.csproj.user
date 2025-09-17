@@ -3,5 +3,8 @@
   <PropertyGroup>
     <ActiveDebugProfile>https</ActiveDebugProfile>
     <NameOfLastUsedPublishProfile>C:\Users\kyoung\Source\Repos\Kyrathat\Whimsiblog\.github\workflows\Whimsiblog20250917103539.yml</NameOfLastUsedPublishProfile>
+    <_SelectedScaffolderID>MvcControllerWithActionsScaffolder</_SelectedScaffolderID>
+    <_SelectedScaffolderCategoryPath>root/Common</_SelectedScaffolderCategoryPath>
+    <WebStackScaffolding_ControllerDialogWidth>650</WebStackScaffolding_ControllerDialogWidth>
   </PropertyGroup>
 </Project>
