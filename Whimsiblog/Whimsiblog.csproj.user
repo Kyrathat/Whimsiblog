@@ -2,6 +2,6 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ActiveDebugProfile>https</ActiveDebugProfile>
-    <NameOfLastUsedPublishProfile>C:\Users\kyoung\Desktop\SA\Class proj\Whimsiblog\Whimsiblog\Properties\PublishProfiles\Whimsiblog20250917103539 - Web Deploy.pubxml</NameOfLastUsedPublishProfile>
+    <NameOfLastUsedPublishProfile>C:\Users\kyoung\Source\Repos\Kyrathat\Whimsiblog\.github\workflows\Whimsiblog20250917103539.yml</NameOfLastUsedPublishProfile>
   </PropertyGroup>
 </Project>
