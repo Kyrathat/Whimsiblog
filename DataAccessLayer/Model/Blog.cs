@@ -10,7 +10,7 @@ namespace DataAccessLayer.Model
     {
         public int BlogId { get; set; }
         public string Name { get; set; } = string.Empty;
-        public Tag? TagID { get; set; }
+        //public Tag? TagID { get; set; }
         //public User? UserID { get; set; }
     }
 }

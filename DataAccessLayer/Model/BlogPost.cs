@@ -11,7 +11,7 @@ namespace DataAccessLayer.Model
         public int BlogPostID { get; set; }
         public string? Title { get; set; } = string.Empty;
         public string? Body { get; set; } = string.Empty;
-        public Tag? TagID { get; set; }
-        public Blog? BlogID { get; set; }
+        //public Tag? TagID { get; set; }
+        //public Blog? BlogID { get; set; }
     }
 }
