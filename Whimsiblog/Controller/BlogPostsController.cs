@@ -8,6 +8,7 @@ namespace Whimsiblog.Controllers
     public class BlogPostsController : Controller
     {
         private readonly BlogContext _context;
+        private ProfanityFilter.ProfanityFilter _filter = new ProfanityFilter.ProfanityFilter();
 
         public BlogPostsController(BlogContext context)
         {
@@ -53,9 +54,17 @@ namespace Whimsiblog.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(blogPost);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if(!_filter.ContainsProfanity(blogPost.Title) && !_filter.ContainsProfanity(blogPost.Body))
+                {
+                    _context.Add(blogPost);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    throw new Exception();
+                }
+
             }
             return View(blogPost);
         }
@@ -92,8 +101,16 @@ namespace Whimsiblog.Controllers
             {
                 try
                 {
-                    _context.Update(blogPost);
-                    await _context.SaveChangesAsync();
+                    if(!_filter.ContainsProfanity(blogPost.Title) && !_filter.ContainsProfanity(blogPost.Body))
+                    {
+                        _context.Update(blogPost);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
