@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "identityapp1": {
+      "connectionInfo": "App registration: Whimsiblog, Tenant: MSTC Labs (mstclabs.mstc.edu - Microsoft Entra ID)",
+      "type": "identityapp.default"
+    }
+  }
+}
