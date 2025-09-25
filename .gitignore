@@ -5,3 +5,5 @@
 /.vs
 /DataAccessLayer/obj
 /Whimsiblog/obj
+/Whimsiblog/bin/Debug/net8.0
+/.gitignore
