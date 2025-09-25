@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Whimsiblog.Model;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace Whimsiblog.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
             private readonly ILogger<HomeController> _logger;
@@ -24,6 +26,7 @@ namespace Whimsiblog.Controllers
                 return View();
             }
 
+            [AllowAnonymous]
             [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
             public IActionResult Error()
             {
