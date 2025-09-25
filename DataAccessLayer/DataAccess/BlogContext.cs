@@ -20,5 +20,26 @@ namespace DataAccessLayer.DataAccess
         public DbSet<BlogComment> BlogComments { get; set; }
         public DbSet<BlogPost> BlogPosts { get; set; }
         public DbSet<Tag> tags { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder); // keep base call (important if you derive from IdentityDbContext)
+
+            // Configure Blog entity/table
+            modelBuilder.Entity<Blog>(entity =>
+            {
+                entity.ToTable("Blogs");             // explicit table name (otherwise EF pluralizes by convention)
+                entity.HasKey(b => b.BlogId);        // primary key
+
+                entity.Property(b => b.Name)         // Name column config
+                      .IsRequired()                  // NOT NULL
+                      .HasMaxLength(100);           // nvarchar(100)
+                //entity.Property(b => b.Tags)
+                    //.HasMaxLength(400);
+                //entity.HasIndex(b => b.UserId)
+                    //.IsUnique();
+            });
+
+        }
     }
 }
