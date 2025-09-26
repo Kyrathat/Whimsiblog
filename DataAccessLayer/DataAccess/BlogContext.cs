@@ -10,7 +10,7 @@ namespace DataAccessLayer.DataAccess
 {
     public class BlogContext : DbContext
     {
-        public BlogContext(DbContextOptions options)
+        public BlogContext(DbContextOptions<BlogContext> options)
             : base (options)
         {
             
@@ -36,7 +36,7 @@ namespace DataAccessLayer.DataAccess
                       .HasMaxLength(100);           // nvarchar(100)
                 //entity.Property(b => b.Tags)
                     //.HasMaxLength(400);
-                //entity.HasIndex(b => b.UserId)
+                //entity.HasIndex(b => b.PrimaryUserId)
                     //.IsUnique();
             });
 

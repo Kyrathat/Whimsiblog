@@ -16,6 +16,6 @@ namespace DataAccessLayer.DataAccess
             
         }
 
-        public DbSet<User>
+        //public DbSet<User>
     }
 }
