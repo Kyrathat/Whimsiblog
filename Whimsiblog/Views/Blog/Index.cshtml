@@ -1,23 +1,46 @@
-﻿@model IEnumerable<DataAccessLayer.Model.Blog>
+﻿@using System.Linq
+@model IEnumerable<DataAccessLayer.Model.Blog>
+
 @{
     ViewData["Title"] = "Blogs";
+    var q = (string?)ViewData["q"] ?? "";
+    var isAuth = User?.Identity?.IsAuthenticated ?? false;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="m-0">Blogs</h1>
-    <a class="btn btn-primary" asp-action="Create">Create New</a>
+
+    <div class="d-flex align-items-center">
+        @if (isAuth)
+        {
+                <a class="btn btn-primary me-2" asp-action="Create">Create New</a>
+        }
+        <form method="get" class="d-flex" role="search">
+            <input name="q" value="@q" class="form-control me-2" placeholder="Search by name..." />
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </form>
+    </div>
 </div>
 
 @if (Model == null || !Model.Any())
 {
-        <div class="alert alert-info">No blogs yet. Be the first to create one!</div>
+        <div class="alert alert-info">
+        @if (string.IsNullOrWhiteSpace(q))
+        {
+                    <span>No blogs yet. Be the first to create one!</span>
+        }
+        else
+        {
+                    <span>No results for "<strong>@q</strong>".</span>
+        }
+        </div>
 }
 else
 {
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>@Html.DisplayNameFor(_ => Model.First().Name)</th>
+                    <th>Name</th>
                     <th style="width:240px;"></th>
                 </tr>
             </thead>

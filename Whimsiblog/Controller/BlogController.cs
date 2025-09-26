@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 
 namespace Whimsiblog.Controllers
@@ -13,26 +14,42 @@ namespace Whimsiblog.Controllers
     public class BlogController : Controller
     {
         private readonly BlogContext _db;
-        private readonly UserManager<IdentityUser> _userManager;
 
-        public BlogController(BlogContext db, UserManager<IdentityUser> userManager)
+        public BlogController(BlogContext db)
         {
             _db = db;
-            _userManager = userManager;
         }
 
-        private string? CurrentUserId() => _userManager.GetUserId(User);
-        private bool IsOwner(Blog b) => !string.IsNullOrEmpty(b.PrimaryOwnerUserId)
-                             && b.PrimaryOwnerUserId == CurrentUserId();
+        private string? CurrentUserId()
+        {
+            // Works for Azure AD / Microsoft.Identity.Web
+            return User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                // Azure AD object id claim (if the above is null)
+                ?? User?.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
+        }
+
+        private bool IsOwner(Blog b) =>
+            !string.IsNullOrEmpty(b.PrimaryOwnerUserId) &&
+            b.PrimaryOwnerUserId == CurrentUserId();
+
 
         // GET: /Blog
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? q)
         {
-            var blogs = await _db.Blogs
-                .AsNoTracking()
+            var query = _db.Blogs.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                q = q.Trim();
+                query = query.Where(b => b.Name.Contains(q));
+            }
+
+            var blogs = await query
                 .OrderBy(b => b.Name)
                 .ToListAsync();
 
+            // pass the current query back to the view for the search box
+            ViewData["q"] = q;
             return View(blogs);
         }
 
@@ -87,36 +104,26 @@ namespace Whimsiblog.Controllers
         }
 
         // POST: /Blog/Edit/5
-        [Authorize]
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("BlogId,Name")] Blog blog)
         {
             if (id != blog.BlogId) return NotFound();
             if (!ModelState.IsValid) return View(blog);
 
-            // Load the tracked entity and verify ownership against the stored row
-            var existing = await _db.Blogs.AsTracking().FirstOrDefaultAsync(b => b.BlogId == id);
+            // Load the tracked entity from the DB
+            var existing = await _db.Blogs.FirstOrDefaultAsync(b => b.BlogId == id);
             if (existing == null) return NotFound();
-            if (!IsOwner(existing)) return Forbid(); // Another owner-check
+            if (!IsOwner(existing)) return Forbid();
 
-            // Update allowed fields, TODO: Add tags
+            // Update only the fields you allow to change
             existing.Name = blog.Name;
 
-            try
-            {
-                _db.Update(blog);
-                await _db.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                bool exists = await _db.Blogs.AnyAsync(b => b.BlogId == blog.BlogId);
-                if (!exists) return NotFound();
-                throw;
-            }
-
-            return RedirectToAction(nameof(Details), new { id = blog.BlogId });
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id = existing.BlogId });
         }
+
 
         // GET: /Blog/Delete/5
         [Authorize]
