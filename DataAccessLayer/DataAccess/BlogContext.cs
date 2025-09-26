@@ -23,21 +23,25 @@ namespace DataAccessLayer.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); // keep base call (important if you derive from IdentityDbContext)
+            base.OnModelCreating(modelBuilder);
 
             // Configure Blog entity/table
             modelBuilder.Entity<Blog>(entity =>
             {
-                entity.ToTable("Blogs");             // explicit table name (otherwise EF pluralizes by convention)
-                entity.HasKey(b => b.BlogId);        // primary key
+                entity.ToTable("Blogs");
+                entity.HasKey(b => b.BlogId); // primary key
 
-                entity.Property(b => b.Name)         // Name column config
-                      .IsRequired()                  // NOT NULL
-                      .HasMaxLength(100);           // nvarchar(100)
+                entity.Property(b => b.Name) // Name column config
+                      .IsRequired() // NOT NULL
+                      .HasMaxLength(100);
                 //entity.Property(b => b.Tags)
-                    //.HasMaxLength(400);
-                //entity.HasIndex(b => b.PrimaryUserId)
-                    //.IsUnique();
+                //.HasMaxLength(400);
+                entity.Property(b => b.PrimaryOwnerUserId).HasMaxLength(450);
+                entity.Property(b => b.PrimaryOwnerUserName).HasMaxLength(256);
+                entity.Property(b => b.CreatedUtc).HasDefaultValueSql("GETUTCDATE()");
+
+                // Helpful for querying by owner later, I imagine we'll be doing a good amount of queries
+                entity.HasIndex(b => b.PrimaryOwnerUserId);
             });
 
         }
