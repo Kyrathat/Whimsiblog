@@ -27,6 +27,15 @@ builder.Services.AddControllersWithViews(options =>
 builder.Services.AddRazorPages()
     .AddMicrosoftIdentityUI();
 
+// Try to read a dedicated connection string for the DefaultConnection.
+var blogConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Register BlogContext in the DI container, telling EF Core to use SQL Server
+// with the resolved connection string above. This lets you inject BlogContext
+// (e.g., into controllers) and have it connect to the right database.
+builder.Services.AddDbContext<BlogContext>(options =>
+    options.UseSqlServer(blogConnection));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -11,10 +11,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("4c398ec9-7514-4fd5-acc6-8bc77d63dfd2")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("Whimsiblog")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+050118d6ddf4d17ae451b248cba3122eb85d9e1e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8b6e223d6af5663f76c876eae39b38f17d753357")]
 [assembly: System.Reflection.AssemblyProductAttribute("Whimsiblog")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Whimsiblog")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
