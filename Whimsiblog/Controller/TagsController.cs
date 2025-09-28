@@ -8,11 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.DataAccess;
 using DataAccessLayer.Model;
 
-namespace Whimsiblog.Controller
+namespace Whimsiblog.Controllers
 {
     public class TagsController : Controller
     {
         private readonly BlogContext _context;
+        private ProfanityFilter.ProfanityFilter _filter = new ProfanityFilter.ProfanityFilter();
 
         public TagsController(BlogContext context)
         {
@@ -22,7 +23,7 @@ namespace Whimsiblog.Controller
         // GET: Tags
         public async Task<IActionResult> Index()
         {
-            return View(await _context.tags.ToListAsync());
+            return View(await _context.Tags.ToListAsync());
         }
 
         // GET: Tags/Details/5
@@ -33,7 +34,7 @@ namespace Whimsiblog.Controller
                 return NotFound();
             }
 
-            var tag = await _context.tags
+            var tag = await _context.Tags
                 .FirstOrDefaultAsync(m => m.TagID == id);
             if (tag == null)
             {
@@ -58,9 +59,22 @@ namespace Whimsiblog.Controller
         {
             if (ModelState.IsValid)
             {
-                _context.Add(tag);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (await TagNameExistsAsync(tag.Name))
+                {
+                    ModelState.AddModelError("Name", "A tag with this name already exists.");
+                    return View(tag);
+                }
+
+                if (!_filter.ContainsProfanity(tag.Name))
+                {
+                    _context.Add(tag);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    throw new Exception();
+                }
             }
             return View(tag);
         }
@@ -73,7 +87,7 @@ namespace Whimsiblog.Controller
                 return NotFound();
             }
 
-            var tag = await _context.tags.FindAsync(id);
+            var tag = await _context.Tags.FindAsync(id);
             if (tag == null)
             {
                 return NotFound();
@@ -95,10 +109,23 @@ namespace Whimsiblog.Controller
 
             if (ModelState.IsValid)
             {
+                if (await TagNameExistsAsync(tag.Name, tag.TagID))
+                {
+                    ModelState.AddModelError("Name", "A tag with this name already exists.");
+                    return View(tag);
+                }
+
                 try
                 {
-                    _context.Update(tag);
-                    await _context.SaveChangesAsync();
+                    if (!_filter.ContainsProfanity(tag.Name))
+                    {
+                        _context.Update(tag);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,7 +151,7 @@ namespace Whimsiblog.Controller
                 return NotFound();
             }
 
-            var tag = await _context.tags
+            var tag = await _context.Tags
                 .FirstOrDefaultAsync(m => m.TagID == id);
             if (tag == null)
             {
@@ -139,10 +166,10 @@ namespace Whimsiblog.Controller
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tag = await _context.tags.FindAsync(id);
+            var tag = await _context.Tags.FindAsync(id);
             if (tag != null)
             {
-                _context.tags.Remove(tag);
+                _context.Tags.Remove(tag);
             }
 
             await _context.SaveChangesAsync();
@@ -151,7 +178,13 @@ namespace Whimsiblog.Controller
 
         private bool TagExists(int id)
         {
-            return _context.tags.Any(e => e.TagID == id);
+            return _context.Tags.Any(e => e.TagID == id);
+        }
+
+        private async Task<bool> TagNameExistsAsync(string name, int? excludeId = null)
+        {
+            return await _context.Tags
+                .AnyAsync(t => t.Name.ToLower() == name.ToLower() && (excludeId == null || t.TagID != excludeId));
         }
     }
 }
