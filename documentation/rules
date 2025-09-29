@@ -1,0 +1,25 @@
+If you’re missing a standup - state why 
+If you’re missing a meeting - state why and let us know ASAP 
+Meetings are re-scheduled after 15 minutes, assuming all members don’t show up
+Standups should be posted before noon. 
+COMMENT YOUR CODE
+Be professional 
+Peer Reviews done by Fri each week. 
+Coding process: 
+Code > Self Testing> Peer Review 
+Team meetings: Thurs at 5pm, weekly meeting set in teams. 
+If you’re struggling for help, reach out to the team.
+If you want to add a new rule, must be unanimous. 
+
+
+Coding practices: 
+
+Code: 
+Limit use of fields, focus on props 
+When introducing a private local field use _name  as a format.  _camelCase 
+Limit whitespace in code. 
+Make sure code is self commenting or comment each method so we can easily tell what you need to do. 
+Make sure code is scalable. 
+Use GUIDs and unique names when possible.
+Single purpose methods. 
+Follow SOLID 
