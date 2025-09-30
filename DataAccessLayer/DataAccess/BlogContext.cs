@@ -10,7 +10,7 @@ namespace DataAccessLayer.DataAccess
 {
     public class BlogContext : DbContext
     {
-        public BlogContext(DbContextOptions options)
+        public BlogContext(DbContextOptions<BlogContext> options)
             : base (options)
         {
             

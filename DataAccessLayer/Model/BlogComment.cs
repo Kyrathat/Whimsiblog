@@ -1,19 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DataAccessLayer.Model;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccessLayer.Model
 {
+
     public class BlogComment
     {
         public int BlogCommentID { get; set; }
-        [Required(ErrorMessage = "Comment body is required.")]
-        [StringLength(1000, ErrorMessage = "Comment cannot exceed 1000 characters.")]
-        public string? Body { get; set; } = string.Empty;
+
+        [Required, StringLength(1000)]
+        public string Body { get; set; } = string.Empty;
+
+        // Azure AD ownership fields
+        public string? OwnerUserId { get; set; }   // ObjectId or NameIdentifier from claims
+        public string? OwnerUserName { get; set; } // Email
+
         [Required]
-        public User? UserID { get; set; }
+        public int BlogPostID { get; set; }
+        public BlogPost? BlogPost { get; set; }
+
+        public int? ParentCommentID { get; set; }
+        public BlogComment? ParentComment { get; set; }
+
+        public ICollection<BlogComment> Replies { get; set; } = new List<BlogComment>();
     }
 }
