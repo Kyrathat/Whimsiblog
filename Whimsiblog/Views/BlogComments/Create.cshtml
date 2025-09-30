@@ -8,30 +8,44 @@
 
 <h4>BlogComment</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
 
-        @if (Model.ParentCommentID != null)
+<div class="row">
+    <div class="col-md-6">
+
+        @* Show parent comment if replying *@
+        @if (Model.ParentComment != null)
         {
             <div>
-                <strong>Replying to:</strong>
-                @Model.ParentComment?.OwnerUserName <br />
-                @Model.ParentComment?.Body
+                <strong>Replying to:</strong><br />
+                <em>@Model.ParentComment.OwnerUserName</em><br />
+                @Model.ParentComment.Body
             </div>
+            <hr />
         }
 
-        <form asp-action="Create">
+        @* Show blog post title read-only *@
+        @if (Model.BlogPost != null)
+        {
+            <div>
+                <strong>Blog Post:</strong><br />
+                @Model.BlogPost.Title
+            </div>
+            <hr />
+        }
+
+        <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
-                <label asp-for="Body" class="control-label"></label>
-                <input asp-for="Body" class="form-control" />
+                <label asp-for="Body" class="control-label">Your Comment</label>
+                <textarea asp-for="Body" class="form-control"></textarea>
                 <span asp-validation-for="Body" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="BlogPostID" class="control-label"></label>
-                <select asp-for="BlogPostID" class="form-control" asp-items="ViewBag.BlogPostID"></select>
-            </div>
+
+            @* Hidden fields *@
+            <input type="hidden" asp-for="BlogPostID" />
             <input type="hidden" asp-for="ParentCommentID" />
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>

@@ -16,6 +16,7 @@ namespace DataAccessLayer.Model
         public string? OwnerUserName { get; set; } // Email
 
         [Required]
+        [Display(Name = "Blog Post")]
         public int BlogPostID { get; set; }
         public BlogPost? BlogPost { get; set; }
 
