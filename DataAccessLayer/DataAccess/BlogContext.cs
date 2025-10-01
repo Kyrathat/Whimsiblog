@@ -19,6 +19,6 @@ namespace DataAccessLayer.DataAccess
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<BlogComment> BlogComments { get; set; }
         public DbSet<BlogPost> BlogPosts { get; set; }
-        public DbSet<Tag> tags { get; set; }
+        public DbSet<Tag> Tags { get; set; }
     }
 }
