@@ -23,18 +23,23 @@
             <hr />
         }
 
-        @* Show blog post title read-only *@
-        @if (Model.BlogPost != null)
-        {
-            <div>
-                <strong>Blog Post:</strong><br />
-                @Model.BlogPost.Title
-            </div>
-            <hr />
-        }
-
         <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @* Only show dropdown if this is a top-level comment *@
+            @if (Model.ParentCommentID == null)
+            {
+                <div class="form-group">
+                    <label asp-for="BlogPostID" class="control-label">Select Blog Post</label>
+                    <select asp-for="BlogPostID" class="form-control" asp-items="ViewBag.BlogPostID"></select>
+                    <span asp-validation-for="BlogPostID" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                @* Replies already know their blog post, keep it hidden *@
+                <input type="hidden" asp-for="BlogPostID" />
+            }
 
             <div class="form-group">
                 <label asp-for="Body" class="control-label">Your Comment</label>
@@ -42,8 +47,7 @@
                 <span asp-validation-for="Body" class="text-danger"></span>
             </div>
 
-            @* Hidden fields *@
-            <input type="hidden" asp-for="BlogPostID" />
+            @* Keep ParentCommentID hidden for replies *@
             <input type="hidden" asp-for="ParentCommentID" />
 
             <div class="form-group">

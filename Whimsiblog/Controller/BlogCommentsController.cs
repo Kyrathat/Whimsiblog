@@ -15,6 +15,7 @@ namespace Whimsiblog.Controllers
     public class BlogCommentsController : Controller
     {
         private readonly BlogContext _context;
+        private ProfanityFilter.ProfanityFilter _filter = new ProfanityFilter.ProfanityFilter();
 
         public BlogCommentsController(BlogContext context)
         {
@@ -88,6 +89,12 @@ namespace Whimsiblog.Controllers
         {
             if (!ModelState.IsValid) return View(comment);
 
+            // Profanity filter check
+            if (_filter.ContainsProfanity(comment.Body))
+            {
+                throw new Exception();
+            }
+
             comment.OwnerUserId = CurrentUserId();
             comment.OwnerUserName = User.Identity?.Name;
 
@@ -123,6 +130,12 @@ namespace Whimsiblog.Controllers
             var existing = await _context.BlogComments.FirstOrDefaultAsync(c => c.BlogCommentID == id);
             if (existing == null) return NotFound();
             if (!IsOwner(existing)) return Forbid();
+
+            // Profanity filter check
+            if (_filter.ContainsProfanity(comment.Body))
+            {
+                throw new Exception();
+            }
 
             existing.Body = comment.Body;
             await _context.SaveChangesAsync();
