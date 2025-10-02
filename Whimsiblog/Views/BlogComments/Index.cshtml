@@ -1,0 +1,50 @@
+﻿@model IEnumerable<DataAccessLayer.Model.BlogComment>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Author</th>
+            <th>Blog Post</th>
+            <th>Body</th>
+            <th>Replying To</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.OwnerUserName</td>
+                <td>@item.BlogPost?.Title</td>
+                <td>@item.Body</td>
+                <td>
+                    @if (item.ParentComment != null)
+                    {
+                        @item.ParentComment.OwnerUserName
+                    }
+                    else
+                    {
+                        <span>—</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.BlogCommentID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.BlogCommentID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.BlogCommentID">Delete</a> |
+                    <a asp-action="Create"
+                       asp-route-blogPostId="@item.BlogPostID"
+                       asp-route-parentCommentId="@item.BlogCommentID">Reply</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

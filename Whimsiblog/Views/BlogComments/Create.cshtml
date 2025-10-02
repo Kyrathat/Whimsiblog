@@ -1,0 +1,68 @@
+﻿@model DataAccessLayer.Model.BlogComment
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>BlogComment</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+
+        @* Show parent comment if replying *@
+        @if (Model.ParentComment != null)
+        {
+            <div>
+                <strong>Replying to:</strong><br />
+                <em>@Model.ParentComment.OwnerUserName</em><br />
+                @Model.ParentComment.Body
+            </div>
+            <hr />
+        }
+
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @* Only show dropdown if this is a top-level comment *@
+            @if (Model.ParentCommentID == null)
+            {
+                <div class="form-group">
+                    <label asp-for="BlogPostID" class="control-label">Select Blog Post</label>
+                    <select asp-for="BlogPostID" class="form-control" asp-items="ViewBag.BlogPostID"></select>
+                    <span asp-validation-for="BlogPostID" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                @* Replies already know their blog post, keep it hidden *@
+                <input type="hidden" asp-for="BlogPostID" />
+            }
+
+            <div class="form-group">
+                <label asp-for="Body" class="control-label">Your Comment</label>
+                <textarea asp-for="Body" class="form-control"></textarea>
+                <span asp-validation-for="Body" class="text-danger"></span>
+            </div>
+
+            @* Keep ParentCommentID hidden for replies *@
+            <input type="hidden" asp-for="ParentCommentID" />
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
