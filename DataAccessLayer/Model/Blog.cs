@@ -12,6 +12,9 @@ namespace DataAccessLayer.Model
         public string Name { get; set; } = string.Empty;
         //public Tag? TagID { get; set; }
 
+        //A short description that users can make
+        public string? Description { get; set; }
+
         // Who owns this blog (Identity user key; nvarchar(450) typical)
         public string? PrimaryOwnerUserId { get; set; }
 

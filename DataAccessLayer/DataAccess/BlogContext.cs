@@ -36,6 +36,10 @@ namespace DataAccessLayer.DataAccess
                       .HasMaxLength(100);
                 //entity.Property(b => b.Tags)
                 //.HasMaxLength(400);
+
+                entity.Property(b => b.Description) // Description config
+                      .HasMaxLength(1000);
+
                 entity.Property(b => b.PrimaryOwnerUserId).HasMaxLength(450);
                 entity.Property(b => b.PrimaryOwnerUserName).HasMaxLength(256);
                 entity.Property(b => b.CreatedUtc).HasDefaultValueSql("GETUTCDATE()");
