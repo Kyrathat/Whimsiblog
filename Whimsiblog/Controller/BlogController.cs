@@ -79,6 +79,15 @@ namespace Whimsiblog.Controllers
         {
             if (!ModelState.IsValid) return View(blog);
 
+            // Normalize input
+            blog.Description = blog.Description?.Trim();
+
+            // If empty, assign a random placeholder
+            if (string.IsNullOrWhiteSpace(blog.Description))
+            {
+                blog.Description = DataAccessLayer.Helpers.BlogDescriptionPlaceholderText.RandomText();
+            }
+
             blog.PrimaryOwnerUserId = CurrentUserId();
             blog.PrimaryOwnerUserName = User.Identity?.Name;
             blog.CreatedUtc = DateTime.UtcNow;
