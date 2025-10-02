@@ -72,14 +72,13 @@ namespace Whimsiblog.Controllers
         }
 
         // POST: /Blog/Create
-        [Authorize]
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name")] Blog blog)
+        public async Task<IActionResult> Create([Bind("Name,Description")] Blog blog)
         {
             if (!ModelState.IsValid) return View(blog);
 
-            // Stamp ownership and audit
             blog.PrimaryOwnerUserId = CurrentUserId();
             blog.PrimaryOwnerUserName = User.Identity?.Name;
             blog.CreatedUtc = DateTime.UtcNow;
@@ -88,6 +87,7 @@ namespace Whimsiblog.Controllers
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Details), new { id = blog.BlogId });
         }
+
 
         // GET: /Blog/Edit/5
         [Authorize]
@@ -107,22 +107,22 @@ namespace Whimsiblog.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BlogId,Name")] Blog blog)
+        public async Task<IActionResult> Edit(int id, [Bind("BlogId,Name,Description")] Blog blog)
         {
             if (id != blog.BlogId) return NotFound();
             if (!ModelState.IsValid) return View(blog);
 
-            // Load the tracked entity from the DB
             var existing = await _db.Blogs.FirstOrDefaultAsync(b => b.BlogId == id);
             if (existing == null) return NotFound();
             if (!IsOwner(existing)) return Forbid();
 
-            // Update only the fields you allow to change
             existing.Name = blog.Name;
+            existing.Description = blog.Description;
 
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Details), new { id = existing.BlogId });
         }
+
 
 
         // GET: /Blog/Delete/5
