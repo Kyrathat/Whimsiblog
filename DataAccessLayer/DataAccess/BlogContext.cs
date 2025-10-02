@@ -48,6 +48,41 @@ namespace DataAccessLayer.DataAccess
                 entity.HasIndex(b => b.PrimaryOwnerUserId);
             });
 
+            // AI-Generated section for BlogComments based on the blog above
+            modelBuilder.Entity<BlogComment>(entity =>
+            {
+                entity.ToTable("BlogComments");
+                entity.HasKey(c => c.BlogCommentID);
+
+                entity.Property(c => c.Body)
+                      .IsRequired()
+                      .HasMaxLength(1000);
+
+                // The owner of the comment
+                entity.Property(c => c.OwnerUserId).HasMaxLength(450);
+                entity.Property(c => c.OwnerUserName).HasMaxLength(256);
+
+                // Server-side timestamp default
+                entity.Property(c => c.CreatedUtc)
+                      .HasDefaultValueSql("GETUTCDATE()");
+
+                // Each comment belongs to a post
+                entity.HasOne(c => c.BlogPost)
+                      .WithMany() 
+                      .HasForeignKey(c => c.BlogPostID)
+                      .OnDelete(DeleteBehavior.Cascade); // Delete comments when a post is deleted
+
+                // Call refernce itself when making replies
+                entity.HasOne(c => c.ParentComment)
+                      .WithMany(p => p.Replies)
+                      .HasForeignKey(c => c.ParentCommentID)
+                      .OnDelete(DeleteBehavior.Restrict); // avoid recursive cascades
+
+                // Data indexing
+                entity.HasIndex(c => c.OwnerUserId); // a section like a "my comments" section
+                entity.HasIndex(c => new { c.BlogPostID, c.BlogCommentID });
+            });
+
         }
 
     }

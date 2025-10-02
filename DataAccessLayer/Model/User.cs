@@ -13,5 +13,9 @@ namespace DataAccessLayer.Model
         public string? Password { get; set; } = string.Empty;
         public string? Email { get; set; } = string.Empty;
         public DateTime BirthDate { get; set; }
+
+        public AvatarType Avatar { get; set; } = AvatarType.ProfessionalNoisemaker;
+
+        //public string? Bio { get; set; }
     }
 }
