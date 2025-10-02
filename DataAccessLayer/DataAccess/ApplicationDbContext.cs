@@ -16,6 +16,11 @@ namespace DataAccessLayer.DataAccess
             
         }
 
+<<<<<<< HEAD
         //public DbSet<User>
     }
+=======
+        public DbSet<Model.User> Users { get; set; }
+        }
+>>>>>>> main
 }
