@@ -1,9 +1,9 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
-/.vs
-/DataAccessLayer/obj
-/Whimsiblog/obj
-/Whimsiblog/bin/Debug/net8.0
-/.gitignore
+﻿bin/
+obj/
+.vs/
+*.user
+*.suo
+*.cache
+*.dll
+*.pdb
+*.exe
