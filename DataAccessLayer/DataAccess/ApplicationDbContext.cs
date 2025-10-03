@@ -11,16 +11,10 @@ namespace DataAccessLayer.DataAccess
     public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> opt)
-            :base (opt)
+            : base(opt)
         {
-            
+
         }
 
-<<<<<<< HEAD
-        //public DbSet<User>
     }
-=======
-        public DbSet<Model.User> Users { get; set; }
-        }
->>>>>>> main
 }
