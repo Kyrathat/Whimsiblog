@@ -62,9 +62,9 @@ namespace DataAccessLayer.DataAccess
                 entity.Property(c => c.OwnerUserId).HasMaxLength(450);
                 entity.Property(c => c.OwnerUserName).HasMaxLength(256);
 
-                // Server-side timestamp default
-                entity.Property(c => c.CreatedUtc)
-                      .HasDefaultValueSql("GETUTCDATE()");
+                // Server-side timestamp default, leaving this in incase we want to do it in the future
+                //entity.Property(c => c.CreatedUtc)
+                      //.HasDefaultValueSql("GETUTCDATE()");
 
                 // Each comment belongs to a post
                 entity.HasOne(c => c.BlogPost)
