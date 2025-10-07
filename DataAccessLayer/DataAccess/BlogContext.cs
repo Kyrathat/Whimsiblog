@@ -46,6 +46,18 @@ namespace DataAccessLayer.DataAccess
 
                 // Helpful for querying by owner later, I imagine we'll be doing a good amount of queries
                 entity.HasIndex(b => b.PrimaryOwnerUserId);
+
+                modelBuilder.Entity<UserProfile>(u =>
+                {
+                    u.ToTable("UserProfiles");
+                    u.HasKey(x => x.Id); // Azure Active Directory (AAD) id
+                    u.Property(x => x.Id).HasMaxLength(64); 
+                    u.Property(x => x.DisplayName).HasMaxLength(128);
+                    u.Property(x => x.Email).HasMaxLength(256);
+                    //u.Property(x => x.Bio).HasMaxLength(280);
+                    u.Property(x => x.CreatedUtc).HasDefaultValueSql("GETUTCDATE()");
+                    //u.Property(x => x.UpdatedUtc).HasDefaultValueSql("GETUTCDATE()");
+                });
             });
 
             // AI-Generated section for BlogComments based on the blog above
