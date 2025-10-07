@@ -48,6 +48,25 @@ namespace DataAccessLayer.DataAccess
                 entity.HasIndex(b => b.PrimaryOwnerUserId);
             });
 
+            // Configure Tag entity/table
+            modelBuilder.Entity<Tag>(entity =>
+            {
+                entity.ToTable("tags"); // Use existing table name
+                entity.HasKey(t => t.TagID);
+                entity.Property(t => t.Name)
+                      .IsRequired()
+                      .HasMaxLength(50);
+                
+                // Ensure tag names are unique
+                entity.HasIndex(t => t.Name).IsUnique();
+            });
+
+            // Configure many-to-many relationship between Blog and Tag
+            modelBuilder.Entity<Blog>()
+                .HasMany(b => b.Tags)
+                .WithMany(t => t.Blogs)
+                .UsingEntity(j => j.ToTable("BlogTags"));
+
         }
     }
 }

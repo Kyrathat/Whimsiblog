@@ -28,5 +28,8 @@ namespace DataAccessLayer.Model
         // Optional audit timestamp, we can decide if we want to show it or not, but I think it's still nice to have
         public DateTime? CreatedUtc { get; set; }
 
+        // Many-to-many relationship with Tags
+        public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
+
     }
 }

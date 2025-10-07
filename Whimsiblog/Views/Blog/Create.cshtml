@@ -29,6 +29,22 @@
     <small id="descCounter" class="text-muted d-block mt-1"></small>
 </div>
 
+    <div class="mb-3">
+        <label class="form-label">Tags</label>
+        <div class="form-check-container">
+            @foreach (var tag in (List<DataAccessLayer.Model.Tag>)ViewBag.Tags)
+            {
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="selectedTags" value="@tag.TagID" id="tag@(tag.TagID)" />
+                    <label class="form-check-label" for="tag@(tag.TagID)">
+                        @tag.Name
+                    </label>
+                </div>
+            }
+        </div>
+        <small class="text-muted">Select tags that describe your blog</small>
+    </div>
+
     <button type="submit" class="btn btn-primary">Create</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>

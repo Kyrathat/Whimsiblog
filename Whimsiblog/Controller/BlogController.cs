@@ -36,7 +36,7 @@ namespace Whimsiblog.Controllers
         // GET: /Blog
         public async Task<IActionResult> Index(string? q)
         {
-            var query = _db.Blogs.AsNoTracking();
+            var query = _db.Blogs.Include(b => b.Tags).AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(q))
             {
@@ -58,7 +58,7 @@ namespace Whimsiblog.Controllers
         {
             if (id == null) return NotFound();
 
-            var blog = await _db.Blogs.AsNoTracking().FirstOrDefaultAsync(b => b.BlogId == id.Value);
+            var blog = await _db.Blogs.Include(b => b.Tags).AsNoTracking().FirstOrDefaultAsync(b => b.BlogId == id.Value);
             if (blog == null) return NotFound();
 
             return View(blog);
@@ -66,8 +66,9 @@ namespace Whimsiblog.Controllers
 
         // GET: /Blog/Create
         [Authorize]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            ViewBag.Tags = await _db.Tags.OrderBy(t => t.Name).ToListAsync();
             return View(new Blog());
         }
 
@@ -75,9 +76,13 @@ namespace Whimsiblog.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Description")] Blog blog)
+        public async Task<IActionResult> Create([Bind("Name,Description")] Blog blog, int[] selectedTags)
         {
-            if (!ModelState.IsValid) return View(blog);
+            if (!ModelState.IsValid) 
+            {
+                ViewBag.Tags = await _db.Tags.OrderBy(t => t.Name).ToListAsync();
+                return View(blog);
+            }
 
             // Normalize input
             blog.Description = blog.Description?.Trim();
@@ -92,6 +97,13 @@ namespace Whimsiblog.Controllers
             blog.PrimaryOwnerUserName = User.Identity?.Name;
             blog.CreatedUtc = DateTime.UtcNow;
 
+            // Add selected tags
+            if (selectedTags != null && selectedTags.Length > 0)
+            {
+                var tags = await _db.Tags.Where(t => selectedTags.Contains(t.TagID)).ToListAsync();
+                blog.Tags = tags;
+            }
+
             _db.Blogs.Add(blog);
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Details), new { id = blog.BlogId });
@@ -104,11 +116,12 @@ namespace Whimsiblog.Controllers
         {
             if (id == null) return NotFound();
 
-            var blog = await _db.Blogs.FindAsync(id.Value);
+            var blog = await _db.Blogs.Include(b => b.Tags).FirstOrDefaultAsync(b => b.BlogId == id.Value);
             if (blog == null) return NotFound();
 
             if (!IsOwner(blog)) return Forbid(); // Owner check to make sure no one else can edit
 
+            ViewBag.Tags = await _db.Tags.OrderBy(t => t.Name).ToListAsync();
             return View(blog);
         }
 
@@ -116,17 +129,32 @@ namespace Whimsiblog.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BlogId,Name,Description")] Blog blog)
+        public async Task<IActionResult> Edit(int id, [Bind("BlogId,Name,Description")] Blog blog, int[] selectedTags)
         {
             if (id != blog.BlogId) return NotFound();
-            if (!ModelState.IsValid) return View(blog);
+            if (!ModelState.IsValid) 
+            {
+                ViewBag.Tags = await _db.Tags.OrderBy(t => t.Name).ToListAsync();
+                return View(blog);
+            }
 
-            var existing = await _db.Blogs.FirstOrDefaultAsync(b => b.BlogId == id);
+            var existing = await _db.Blogs.Include(b => b.Tags).FirstOrDefaultAsync(b => b.BlogId == id);
             if (existing == null) return NotFound();
             if (!IsOwner(existing)) return Forbid();
 
             existing.Name = blog.Name;
             existing.Description = blog.Description;
+
+            // Update tags
+            existing.Tags.Clear();
+            if (selectedTags != null && selectedTags.Length > 0)
+            {
+                var tags = await _db.Tags.Where(t => selectedTags.Contains(t.TagID)).ToListAsync();
+                foreach (var tag in tags)
+                {
+                    existing.Tags.Add(tag);
+                }
+            }
 
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Details), new { id = existing.BlogId });
