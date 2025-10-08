@@ -137,6 +137,36 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Tags");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Model.UserProfile", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("Avatar")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserProfiles", (string)null);
+                });
+
             modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
                 {
                     b.HasOne("DataAccessLayer.Model.BlogPost", "BlogPost")

@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Whimsiblog")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+70d25e89ee2ffb065264f68e476acfb53861080b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b81de207f61f22b88aaeb6c1fd7d0daf1b34a1a0")]
 [assembly: System.Reflection.AssemblyProductAttribute("Whimsiblog")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Whimsiblog")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
