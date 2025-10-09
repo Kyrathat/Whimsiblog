@@ -20,6 +20,8 @@ namespace DataAccessLayer.DataAccess
         public DbSet<BlogComment> BlogComments { get; set; }
         public DbSet<BlogPost> BlogPosts { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<UserProfile> UserProfiles { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -56,7 +58,7 @@ namespace DataAccessLayer.DataAccess
                     u.Property(x => x.Email).HasMaxLength(256);
                     //u.Property(x => x.Bio).HasMaxLength(280);
                     u.Property(x => x.CreatedUtc).HasDefaultValueSql("GETUTCDATE()");
-                    //u.Property(x => x.UpdatedUtc).HasDefaultValueSql("GETUTCDATE()");
+                    u.Property(x => x.UpdatedUtc).HasDefaultValueSql("GETUTCDATE()");
                 });
             });
 

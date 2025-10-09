@@ -16,6 +16,6 @@ namespace DataAccessLayer.Model
         public AvatarType Avatar { get; set; } = AvatarType.DoomsdayApparatus;
         //public string? Bio { get; set; } optional short bio
         public DateTime CreatedUtc { get; set; }
-        //public DateTime UpdatedUtc { get; set; }
+        public DateTime UpdatedUtc { get; set; }
     }
 }

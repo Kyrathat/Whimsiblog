@@ -7,19 +7,23 @@ using DataAccessLayer.Model;
 
 namespace Whimsiblog.Controllers
 {
+    
     // Only authenticated users can view their profile.
     [Authorize]
     public class ProfileController : Controller
     {
         private readonly BlogContext _db;
-        public ProfileController(BlogContext db) => _db = db;
+        public ProfileController(BlogContext db)
+        {
+            _db = db;
+        }
 
         // Pull the stable Azure AD user id
         private string? CurrentAadId() =>
             User.FindFirst("oid")?.Value
             ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
             ?? User.FindFirst("sub")?.Value;
-        /*
+        
         [HttpGet]
         public async Task<IActionResult> Edit()
         {
@@ -76,6 +80,7 @@ namespace Whimsiblog.Controllers
 
             // Avoids resubmits on refresh.
             return RedirectToAction(nameof(Edit));
-        } */
+        } 
     }
+    
 }

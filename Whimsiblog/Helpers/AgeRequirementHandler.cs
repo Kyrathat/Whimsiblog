@@ -10,7 +10,7 @@ namespace Whimsiblog.Helpers
     /// We store a user profile (keyed by AAD id) with a BirthDate; this handler
     /// loads that profile and calculates age in UTC (date-only) to avoid time-of-day issues.
     /// </summary>
-    /*
+    
     // AAD is Azure Active Directory
     public class AgeRequirementHandler : AuthorizationHandler<AgeRequirement>
     {
@@ -57,5 +57,7 @@ namespace Whimsiblog.Helpers
                 context.Succeed(requirement);
 
         }
-    } */
+    
+    } 
+    
 }
