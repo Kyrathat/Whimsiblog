@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.DataAccess;
 using DataAccessLayer.Model;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Whimsiblog.Controllers
 {
@@ -40,6 +41,7 @@ namespace Whimsiblog.Controllers
         }
 
         // GET: BlogPosts/Create
+        [Authorize(Policy = "Age18+")]
         public IActionResult Create()
         {
             return View();
@@ -48,6 +50,7 @@ namespace Whimsiblog.Controllers
         // POST: BlogPosts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Policy = "Age18+")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("BlogPostID,Title,Body")] BlogPost blogPost)
