@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using Whimsiblog.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<BlogContext>(opt =>
@@ -26,6 +27,29 @@ builder.Services.AddControllersWithViews(options =>
 });
 builder.Services.AddRazorPages()
     .AddMicrosoftIdentityUI();
+
+// - - - - - - - - - - 18+ Section - - - - - - - - - - 
+
+// Add the 18+ validation onto the whole site
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Age18+",
+        policy => policy.Requirements.Add(new AgeRequirement(18))); // Set the age of the validation (18+)
+});
+//  /!\ Handler lifetime MUST be scoped if it uses BlogContext /!\
+builder.Services.AddScoped<IAuthorizationHandler, AgeRequirementHandler>();
+
+// A global filter for the toast so I know if it worked
+builder.Services.AddControllersWithViews(options =>
+{
+    // Protects the whole site
+    options.Filters.Add(new AuthorizeFilter("Age18+"));
+
+    // Add the toast filter so we can show the success message ONCE
+    options.Filters.Add<AgeSuccessToastFilter>();
+});
+
+// - - - - - - - - - - End Section - - - - - - - - - - 
 
 // Try to read a dedicated connection string for the DefaultConnection.
 var blogConnection = builder.Configuration.GetConnectionString("DefaultConnection");

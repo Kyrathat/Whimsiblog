@@ -50,6 +50,20 @@
         </main>
     </div>
 
+    @* The 18+ toast *@
+    @if (TempData["AuthSuccess"] is string toastMsg)
+    {
+        <div class="toast toast-success">
+            @toastMsg
+        </div>
+
+        <script>
+            setTimeout(() => {
+                document.querySelectorAll('.toast-success').forEach(t => t.remove());
+            }, 3000); @* Hides after 3 seconds, 1000 = 1 second*@
+        </script>
+    }
+
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - Whimsiblog - <a asp-area="" asp-page="/Privacy">Privacy</a>
