@@ -23,7 +23,33 @@ namespace Whimsiblog.Controllers
             User.FindFirst("oid")?.Value
             ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
             ?? User.FindFirst("sub")?.Value;
-        
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var id = CurrentAadId();
+            if (id is null) return Challenge();
+
+            var profile = await _db.UserProfiles.AsNoTracking()
+                               .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (profile is null) return RedirectToAction(nameof(Edit));
+
+            // Compute extras
+            int? age = null;
+            if (profile.BirthDate is DateTime dob)
+            {
+                var today = DateTime.UtcNow.Date;
+                age = today.Year - dob.Year
+                      - (today < dob.AddYears(today.Year - dob.Year) ? 1 : 0);
+            }
+
+            ViewBag.Age = age;
+            ViewBag.IsAdult = age is >= 18;
+
+            return View(profile); // pass the entity
+        }
+
         [HttpGet]
         public async Task<IActionResult> Edit()
         {

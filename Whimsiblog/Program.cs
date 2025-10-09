@@ -39,14 +39,13 @@ builder.Services.AddAuthorization(options =>
 //  /!\ Handler lifetime MUST be scoped if it uses BlogContext /!\
 builder.Services.AddScoped<IAuthorizationHandler, AgeRequirementHandler>();
 
-// A global filter for the toast so I know if it worked
-builder.Services.AddControllersWithViews(options =>
+// Global “must be signed in”, NOT Age18+, the 18+ one breaks the site
+builder.Services.AddControllersWithViews(o =>
 {
-    // Protects the whole site
-    options.Filters.Add(new AuthorizeFilter("Age18+"));
-
-    // Add the toast filter so we can show the success message ONCE
-    options.Filters.Add<AgeSuccessToastFilter>();
+    var authOnly = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+    o.Filters.Add(new AuthorizeFilter(authOnly));
 });
 
 // - - - - - - - - - - End Section - - - - - - - - - - 
