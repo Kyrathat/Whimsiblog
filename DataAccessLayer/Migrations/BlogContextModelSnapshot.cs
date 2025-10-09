@@ -124,11 +124,13 @@ namespace DataAccessLayer.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TagID"));
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("TagID");
 
-                    b.ToTable("tags");
+                    b.ToTable("Tag");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>

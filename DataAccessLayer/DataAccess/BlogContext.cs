@@ -19,7 +19,6 @@ namespace DataAccessLayer.DataAccess
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<BlogComment> BlogComments { get; set; }
         public DbSet<BlogPost> BlogPosts { get; set; }
-<<<<<<< HEAD
         public DbSet<Tag> tags { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -50,8 +49,6 @@ namespace DataAccessLayer.DataAccess
             });
 
         }
-=======
         public DbSet<Tag> Tags { get; set; }
->>>>>>> main
     }
 }
