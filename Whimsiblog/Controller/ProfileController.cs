@@ -7,16 +7,12 @@ using DataAccessLayer.Model;
 
 namespace Whimsiblog.Controllers
 {
-    
-    // Only authenticated users can view their profile.
+    // Only authenticated users can view/manage their profile.
     [Authorize]
     public class ProfileController : Controller
     {
         private readonly BlogContext _db;
-        public ProfileController(BlogContext db)
-        {
-            _db = db;
-        }
+        public ProfileController(BlogContext db) => _db = db;
 
         // Pull the stable Azure AD user id
         private string? CurrentAadId() =>
@@ -31,23 +27,43 @@ namespace Whimsiblog.Controllers
             if (id is null) return Challenge();
 
             var profile = await _db.UserProfiles.AsNoTracking()
-                               .FirstOrDefaultAsync(p => p.Id == id);
+                              .FirstOrDefaultAsync(p => p.Id == id);
 
+            // If the user doesn't have a profile yet, redirect them to create one
             if (profile is null) return RedirectToAction(nameof(Edit));
 
-            // Compute extras
             int? age = null;
             if (profile.BirthDate is DateTime dob)
             {
                 var today = DateTime.UtcNow.Date;
-                age = today.Year - dob.Year
-                      - (today < dob.AddYears(today.Year - dob.Year) ? 1 : 0);
+                var years = today.Year - dob.Year;
+                if (dob.Date > today.AddYears(-years)) years--;
+                age = years;
             }
+
+            // Recent activity
+            ViewBag.RecentPosts = await _db.BlogPosts.AsNoTracking()
+                .Where(p => p.OwnerID == id) // Awaiting new field
+                .OrderByDescending(p => p.BlogPostID)
+                .Take(5)
+                .ToListAsync();
+
+            ViewBag.RecentComments = await _db.BlogComments.AsNoTracking()
+                .Where(c => c.OwnerUserId == id)
+                .OrderByDescending(c => c.BlogCommentID)
+                .Include(c => c.BlogPost)
+                .Take(5)
+                .ToListAsync();
+
+            ViewBag.PostCount = await _db.BlogPosts.AsNoTracking().CountAsync(p => p.OwnerID == id);  // Awaiting new field
+            ViewBag.CommentCount = await _db.BlogComments.AsNoTracking().CountAsync(c => c.OwnerUserId == id);
 
             ViewBag.Age = age;
             ViewBag.IsAdult = age is >= 18;
+            ViewBag.IsOwner = true;
 
-            return View(profile); // pass the entity
+            // Pass the entity as the model
+            return View(profile);
         }
 
         [HttpGet]
@@ -58,16 +74,15 @@ namespace Whimsiblog.Controllers
 
             // Find by PK
             var profile = await _db.UserProfiles.FindAsync(id)
-                        ?? new UserProfile
-                        {
-                            Id = id,
-                            DisplayName = User.Identity?.Name,
-                            Email = User.FindFirst(ClaimTypes.Email)?.Value
-                        };
+                         ?? new UserProfile
+                         {
+                             Id = id,
+                             DisplayName = User.Identity?.Name,
+                             Email = User.FindFirst(ClaimTypes.Email)?.Value
+                         };
 
             return View(profile);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -75,18 +90,16 @@ namespace Whimsiblog.Controllers
         {
             var id = CurrentAadId();
             if (id is null) return Challenge(); // not signed in
+            if (id != input.Id) return Forbid(); // cannot edit someone else
 
-            // Authorization check
-            if (id != input.Id) return Forbid();
-
-            // Basic server-side validation
+            // Basic validation
             if (input.BirthDate is { } dob && dob > DateTime.UtcNow.Date)
                 ModelState.AddModelError(nameof(input.BirthDate), "Birth date cannot be in the future.");
 
             if (!ModelState.IsValid)
-                return View(input); // redisplay the form with validation messages
+                return View(input); // redisplay with messages
 
-             var exists = await _db.UserProfiles.AsNoTracking().AnyAsync(p => p.Id == id);
+            var exists = await _db.UserProfiles.AsNoTracking().AnyAsync(p => p.Id == id);
 
             input.UpdatedUtc = DateTime.UtcNow;
             if (!exists)
@@ -101,12 +114,13 @@ namespace Whimsiblog.Controllers
 
             await _db.SaveChangesAsync();
 
-            //User feedback shown after redirect
+            // User feedback shown after redirect
             TempData["ProfileSaved"] = "Your profile was saved.";
 
-            // Avoids resubmits on refresh.
+            // Avoid resubmits on refresh
             return RedirectToAction(nameof(Edit));
-        } 
+        }
+
+        
     }
-    
 }
