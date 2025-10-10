@@ -43,7 +43,7 @@ namespace Whimsiblog.Controllers
 
             // Recent activity
             ViewBag.RecentPosts = await _db.BlogPosts.AsNoTracking()
-                .Where(p => p.OwnerID == id) // Awaiting new field
+                .Where(p => p.OwnerUserId == id) // Awaiting new field
                 .OrderByDescending(p => p.BlogPostID)
                 .Take(5)
                 .ToListAsync();
@@ -55,7 +55,7 @@ namespace Whimsiblog.Controllers
                 .Take(5)
                 .ToListAsync();
 
-            ViewBag.PostCount = await _db.BlogPosts.AsNoTracking().CountAsync(p => p.OwnerID == id);  // Awaiting new field
+            ViewBag.PostCount = await _db.BlogPosts.AsNoTracking().CountAsync(p => p.OwnerUserId == id);  // Awaiting new field
             ViewBag.CommentCount = await _db.BlogComments.AsNoTracking().CountAsync(c => c.OwnerUserId == id);
 
             ViewBag.Age = age;

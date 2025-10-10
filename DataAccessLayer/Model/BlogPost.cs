@@ -17,5 +17,6 @@ namespace DataAccessLayer.Model
         public string? Body { get; set; } = string.Empty;
         //public Tag? TagID { get; set; }
         //public Blog? BlogID { get; set; }
+        public string? OwnerUserId { get; set; }
     }
 }
