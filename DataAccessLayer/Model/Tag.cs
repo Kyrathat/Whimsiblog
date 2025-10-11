@@ -14,5 +14,7 @@ namespace DataAccessLayer.Model
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(50, ErrorMessage = "Name can't be longer than 50 characters.")]
         public string? Name { get; set; } = string.Empty;
+
+        public ICollection<BlogPost> BlogPosts { get; set; } = new List<BlogPost>();
     } 
 }
