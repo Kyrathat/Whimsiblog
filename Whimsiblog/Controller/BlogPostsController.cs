@@ -40,8 +40,9 @@ namespace Whimsiblog.Controllers
         }
 
         // GET: BlogPosts/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            ViewBag.AllTags = await _context.Tags.ToListAsync();
             return View();
         }
 
@@ -50,24 +51,31 @@ namespace Whimsiblog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BlogPostID,Title,Body")] BlogPost blogPost)
+        public async Task<IActionResult> Create(BlogPost blogPost, int[] SelectedTagIDs)
         {
             if (ModelState.IsValid)
             {
-                if(!_filter.ContainsProfanity(blogPost.Title) && !_filter.ContainsProfanity(blogPost.Body))
+                // Load tags from DB for the selected IDs
+                if (SelectedTagIDs != null && SelectedTagIDs.Length > 0)
                 {
-                    _context.Add(blogPost);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                else
-                {
-                    throw new Exception();
+                    var selectedTags = await _context.Tags
+                        .Where(t => SelectedTagIDs.Contains(t.TagID))
+                        .ToListAsync();
+
+                    blogPost.Tags = selectedTags;
                 }
 
+                // Add the blog post to the database
+                _context.Add(blogPost);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
+
+            // Re-populate ViewBag.AllTags in case of redisplay
+            ViewBag.AllTags = await _context.Tags.ToListAsync();
             return View(blogPost);
         }
+
 
         // GET: BlogPosts/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -101,7 +109,7 @@ namespace Whimsiblog.Controllers
             {
                 try
                 {
-                    if(!_filter.ContainsProfanity(blogPost.Title) && !_filter.ContainsProfanity(blogPost.Body))
+                    if (!_filter.ContainsProfanity(blogPost.Title) && !_filter.ContainsProfanity(blogPost.Body))
                     {
                         _context.Update(blogPost);
                         await _context.SaveChangesAsync();
@@ -148,7 +156,6 @@ namespace Whimsiblog.Controllers
 
         // POST: BlogPosts/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var blogPost = await _context.BlogPosts.FindAsync(id);
