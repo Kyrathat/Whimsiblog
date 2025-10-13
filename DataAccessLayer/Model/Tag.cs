@@ -16,6 +16,6 @@ namespace DataAccessLayer.Model
         public string? Name { get; set; } = string.Empty;
 
         // Many-to-many relationship with Blogs
-        public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
+        public ICollection<Blog> Blogs { get; set; } = new List<Blog>();
     } 
 }

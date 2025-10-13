@@ -29,17 +29,19 @@
     <small id="descCounter" class="text-muted d-block mt-1"></small>
 </div>
 
-    <div class="mb-3">
-        <label class="form-label">Tags</label>
-        <div class="form-check-container">
-            @foreach (var tag in (List<DataAccessLayer.Model.Tag>)ViewBag.Tags)
+    <!-- Tag System -->
+    <div class="form-group position-relative mb-3">
+        <label asp-for="Tags" class="form-label">Tags</label>
+        <input type="text" id="tagInput" class="form-control" placeholder="Search tags..." autocomplete="off" />
+        <div id="tagSuggestions" class="autocomplete-items"></div>
+
+        <div id="tagCheckboxes" class="mt-2">
+            @foreach (var tag in ViewBag.AllTags as List<DataAccessLayer.Model.Tag>)
             {
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="selectedTags" value="@tag.TagID" id="tag@(tag.TagID)" />
-                    <label class="form-check-label" for="tag@(tag.TagID)">
-                        @tag.Name
-                    </label>
-                </div>
+                <label class="form-check d-block">
+                    <input type="checkbox" name="SelectedTagIDs" value="@tag.TagID" class="form-check-input" />
+                    <span class="form-check-label">@tag.Name</span>
+                </label>
             }
         </div>
         <small class="text-muted">Select tags that describe your blog</small>

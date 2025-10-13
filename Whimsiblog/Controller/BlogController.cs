@@ -68,7 +68,7 @@ namespace Whimsiblog.Controllers
         [Authorize]
         public async Task<IActionResult> Create()
         {
-            ViewBag.Tags = await _db.Tags.OrderBy(t => t.Name).ToListAsync();
+            ViewBag.AllTags = await _db.Tags.OrderBy(t => t.Name).ToListAsync();
             return View(new Blog());
         }
 
@@ -76,11 +76,11 @@ namespace Whimsiblog.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Description")] Blog blog, int[] selectedTags)
+        public async Task<IActionResult> Create([Bind("Name,Description")] Blog blog, int[] SelectedTagIDs)
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
             {
-                ViewBag.Tags = await _db.Tags.OrderBy(t => t.Name).ToListAsync();
+                ViewBag.AllTags = await _db.Tags.OrderBy(t => t.Name).ToListAsync();
                 return View(blog);
             }
 
@@ -98,10 +98,13 @@ namespace Whimsiblog.Controllers
             blog.CreatedUtc = DateTime.UtcNow;
 
             // Add selected tags
-            if (selectedTags != null && selectedTags.Length > 0)
+            if (SelectedTagIDs != null && SelectedTagIDs.Length > 0)
             {
-                var tags = await _db.Tags.Where(t => selectedTags.Contains(t.TagID)).ToListAsync();
-                blog.Tags = tags;
+                var selectedTags = await _db.Tags
+                    .Where(t => SelectedTagIDs.Contains(t.TagID))
+                    .ToListAsync();
+
+                blog.Tags = selectedTags;
             }
 
             _db.Blogs.Add(blog);
@@ -121,7 +124,8 @@ namespace Whimsiblog.Controllers
 
             if (!IsOwner(blog)) return Forbid(); // Owner check to make sure no one else can edit
 
-            ViewBag.Tags = await _db.Tags.OrderBy(t => t.Name).ToListAsync();
+            ViewBag.AllTags = await _db.Tags.OrderBy(t => t.Name).ToListAsync();
+            ViewBag.SelectedTagIDs = blog.Tags?.Select(t => t.TagID).ToArray() ?? new int[0];
             return View(blog);
         }
 
@@ -129,12 +133,12 @@ namespace Whimsiblog.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BlogId,Name,Description")] Blog blog, int[] selectedTags)
+        public async Task<IActionResult> Edit(int id, [Bind("BlogId,Name,Description")] Blog blog, int[] SelectedTagIDs)
         {
             if (id != blog.BlogId) return NotFound();
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
             {
-                ViewBag.Tags = await _db.Tags.OrderBy(t => t.Name).ToListAsync();
+                ViewBag.AllTags = await _db.Tags.OrderBy(t => t.Name).ToListAsync();
                 return View(blog);
             }
 
@@ -147,10 +151,13 @@ namespace Whimsiblog.Controllers
 
             // Update tags
             existing.Tags.Clear();
-            if (selectedTags != null && selectedTags.Length > 0)
+            if (SelectedTagIDs != null && SelectedTagIDs.Length > 0)
             {
-                var tags = await _db.Tags.Where(t => selectedTags.Contains(t.TagID)).ToListAsync();
-                foreach (var tag in tags)
+                var selectedTags = await _db.Tags
+                    .Where(t => SelectedTagIDs.Contains(t.TagID))
+                    .ToListAsync();
+
+                foreach (var tag in selectedTags)
                 {
                     existing.Tags.Add(tag);
                 }

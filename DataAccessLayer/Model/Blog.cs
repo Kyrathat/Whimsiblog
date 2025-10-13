@@ -29,7 +29,7 @@ namespace DataAccessLayer.Model
         public DateTime? CreatedUtc { get; set; }
 
         // Many-to-many relationship with Tags
-        public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
+        public ICollection<Tag> Tags { get; set; } = new List<Tag>();
 
     }
 }
