@@ -186,5 +186,38 @@ namespace Whimsiblog.Controllers
             return await _context.Tags
                 .AnyAsync(t => t.Name.ToLower() == name.ToLower() && (excludeId == null || t.TagID != excludeId));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Search(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return Json(new List<object>());
+
+            query = query.Trim().ToLower();
+
+            var matches = await _context.Tags
+                .Where(t => t.Name.ToLower().StartsWith(query))
+                .Select(t => new { t.TagID, t.Name }) // ✅ return both id + name
+                .ToListAsync();
+
+            return Json(matches);
+        }
+
+
+        [HttpPost("/tags/add")]
+        public IActionResult AddTag([FromBody] string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return BadRequest();
+
+            var existing = _context.Tags.FirstOrDefault(t => t.Name == name);
+            if (existing != null) return Conflict("Tag already exists");
+
+            var newTag = new Tag { Name = name };
+            _context.Tags.Add(newTag);
+            _context.SaveChanges();
+
+            return Json(new { TagID = newTag.TagID, Name = newTag.Name });
+        }
+
     }
 }

@@ -36,12 +36,15 @@
         <div id="tagSuggestions" class="autocomplete-items"></div>
 
         <div id="tagCheckboxes" class="mt-2">
-            @foreach (var tag in ViewBag.AllTags as List<DataAccessLayer.Model.Tag>)
+            @if (ViewBag.AllTags is List<DataAccessLayer.Model.Tag> allTags && allTags != null)
             {
-                <label class="form-check d-block">
-                    <input type="checkbox" name="SelectedTagIDs" value="@tag.TagID" class="form-check-input" />
-                    <span class="form-check-label">@tag.Name</span>
-                </label>
+                foreach (var tag in allTags)
+                {
+                    <label class="form-check d-block">
+                        <input type="checkbox" name="SelectedTagIDs" value="@tag.TagID" class="form-check-input" />
+                        <span class="form-check-label">@tag.Name</span>
+                    </label>
+                }
             }
         </div>
         <small class="text-muted">Select tags that describe your blog</small>
@@ -54,6 +57,7 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/TagSearchHandling.js" defer></script>
     }
 
             <script> // Helpful counter code from ChatGPT

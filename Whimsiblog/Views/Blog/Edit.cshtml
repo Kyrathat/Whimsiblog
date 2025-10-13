@@ -39,7 +39,7 @@
         <div id="tagSuggestions" class="autocomplete-items"></div>
 
         <div id="tagCheckboxes" class="mt-2">
-            @foreach (var tag in ViewBag.AllTags as List<DataAccessLayer.Model.Tag>)
+            @foreach (var tag in (ViewBag.AllTags as List<DataAccessLayer.Model.Tag> ?? new List<DataAccessLayer.Model.Tag>()))
             {
                 <label class="form-check d-block">
                     <input type="checkbox" name="SelectedTagIDs" value="@tag.TagID"
@@ -59,6 +59,7 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/TagSearchHandling.js" defer></script>
     }
 
     <script>
