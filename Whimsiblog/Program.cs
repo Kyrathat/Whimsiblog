@@ -17,6 +17,11 @@ builder.Services.AddDbContext<BlogContext>(opt =>
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
 
+// Allow the Hello___! Banner to display a userName instead
+builder.Services.Configure<OpenIdConnectOptions>(
+    OpenIdConnectDefaults.AuthenticationScheme,
+    options => options.TokenValidationParameters.NameClaimType = "name");
+
 // Add services to the container.
 builder.Services.AddControllersWithViews(options =>
 {
