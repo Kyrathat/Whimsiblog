@@ -17,6 +17,13 @@ namespace DataAccessLayer.Model
         public string? Body { get; set; } = string.Empty;
         //public Tag? TagID { get; set; }
         //public Blog? BlogID { get; set; }
-        public string? OwnerUserId { get; set; }
+
+        [StringLength(450)]
+        public string? OwnerUserId { get; set; }   // AAD object id
+
+        [StringLength(256)]
+        public string? OwnerUserName { get; set; } // Name /!!\ at time of post /!!\
+                                                    // Name does not update
+        public DateTime CreatedUtc { get; set; }
     }
 }

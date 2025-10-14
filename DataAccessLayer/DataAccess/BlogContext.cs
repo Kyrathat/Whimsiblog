@@ -62,6 +62,14 @@ namespace DataAccessLayer.DataAccess
                 });
             });
 
+            modelBuilder.Entity<BlogPost>(e =>
+            {
+                e.Property(p => p.Title).HasMaxLength(150).IsRequired();
+                e.Property(p => p.OwnerUserId).HasMaxLength(450);
+                e.Property(p => p.OwnerUserName).HasMaxLength(256);
+                e.Property(p => p.CreatedUtc).HasDefaultValueSql("GETUTCDATE()");
+            });
+
             // AI-Generated section for BlogComments based on the blog above
             modelBuilder.Entity<BlogComment>(entity =>
             {

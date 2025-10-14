@@ -20,6 +20,38 @@ namespace Whimsiblog.Controllers
             ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
             ?? User.FindFirst("sub")?.Value;
 
+        // GET /profile/posts
+        [HttpGet]
+        public async Task<IActionResult> Posts(int page = 1, int pageSize = 10) // 10 items are shown in this history
+        {
+            var id = CurrentAadId();
+            if (id is null) return Challenge();
+
+            var items = await _db.BlogPosts.AsNoTracking()
+                .Where(p => p.OwnerUserId == id)
+                .OrderByDescending(p => p.BlogPostID)
+                .Take(pageSize) // Paging operation
+                .ToListAsync();
+
+            return View(items); // Leads to Views/Profile/Posts.cshtml
+        }
+
+        // GET /profile/comments
+        [HttpGet]
+        public async Task<IActionResult> Comments(int page = 1, int pageSize = 10)
+        {
+            var id = CurrentAadId();
+            if (id is null) return Challenge();
+
+            var items = await _db.BlogComments.AsNoTracking()
+                .Where(c => c.OwnerUserId == id)
+                .OrderByDescending(c => c.BlogCommentID)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return View(items); // Leads to Views/Profile/Comments.cshtml
+        }
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {

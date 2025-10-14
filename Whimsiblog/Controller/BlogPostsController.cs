@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.DataAccess;
 using DataAccessLayer.Model;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Whimsiblog.Controllers
 {
@@ -47,29 +48,27 @@ namespace Whimsiblog.Controllers
             return View();
         }
 
-        // POST: BlogPosts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Policy = "Age18+")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BlogPostID,Title,Body")] BlogPost blogPost)
+        [Authorize(Policy = "Age18+")]
+        public async Task<IActionResult> Create(BlogPost blogPost)
         {
-            if (ModelState.IsValid)
-            {
-                if(!_filter.ContainsProfanity(blogPost.Title) && !_filter.ContainsProfanity(blogPost.Body))
-                {
-                    _context.Add(blogPost);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                else
-                {
-                    throw new Exception();
-                }
+            if (!ModelState.IsValid) return View(blogPost);
 
-            }
-            return View(blogPost);
+            var userId = User.FindFirst("oid")?.Value
+                        ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                        ?? User.FindFirst("sub")?.Value;
+
+            if (userId is null) return Challenge();
+
+            blogPost.OwnerUserId = userId;
+            blogPost.OwnerUserName = User.Identity?.Name;
+            // CreatedUtc will be filled by the DB default
+
+            _context.BlogPosts.Add(blogPost);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: BlogPosts/Edit/5
