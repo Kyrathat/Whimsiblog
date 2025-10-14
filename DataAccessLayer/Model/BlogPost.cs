@@ -25,5 +25,7 @@ namespace DataAccessLayer.Model
         public string? OwnerUserName { get; set; } // Name /!!\ at time of post /!!\
                                                     // Name does not update
         public DateTime CreatedUtc { get; set; }
+
+        public DateTime? UpdatedUtc { get; set; }
     }
 }

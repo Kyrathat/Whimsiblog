@@ -68,6 +68,8 @@ namespace DataAccessLayer.DataAccess
                 e.Property(p => p.OwnerUserId).HasMaxLength(450);
                 e.Property(p => p.OwnerUserName).HasMaxLength(256);
                 e.Property(p => p.CreatedUtc).HasDefaultValueSql("GETUTCDATE()");
+                e.Property(p => p.UpdatedUtc).HasDefaultValueSql("GETUTCDATE()");
+
             });
 
             // AI-Generated section for BlogComments based on the blog above

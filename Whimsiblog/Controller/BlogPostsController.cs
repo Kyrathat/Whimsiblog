@@ -103,15 +103,20 @@ namespace Whimsiblog.Controllers
             {
                 try
                 {
-                    if(!_filter.ContainsProfanity(blogPost.Title) && !_filter.ContainsProfanity(blogPost.Body))
-                    {
-                        _context.Update(blogPost);
-                        await _context.SaveChangesAsync();
-                    }
-                    else
+                    if (_filter.ContainsProfanity(blogPost.Title) || _filter.ContainsProfanity(blogPost.Body))
                     {
                         throw new Exception();
                     }
+
+                    // Load the existing entity so we don't mess up the other database items
+                    var entity = await _context.BlogPosts.FindAsync(id);
+                    if (entity == null) return NotFound();
+
+                    entity.Title = blogPost.Title;
+                    entity.Body = blogPost.Body;
+                    entity.UpdatedUtc = DateTime.UtcNow; // Used to update the Profile History
+
+                    await _context.SaveChangesAsync();
 
                 }
                 catch (DbUpdateConcurrencyException)

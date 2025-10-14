@@ -64,6 +64,15 @@ namespace Whimsiblog.Controllers
             // If the user doesn't have a profile yet, redirect them to create one
             if (profile is null) return RedirectToAction(nameof(Edit));
 
+            ViewBag.RecentPosts = await _db.BlogPosts.AsNoTracking()
+            .Where(p => p.OwnerUserId == id)
+            .OrderByDescending(p => p.UpdatedUtc ?? p.CreatedUtc) // latest activity first
+            .Take(5) // Limits the result set to the first 5 items, I don't think we'll need more than 5 there
+            .ToListAsync();
+
+            ViewBag.PostCount = await _db.BlogPosts.AsNoTracking()
+                .CountAsync(p => p.OwnerUserId == id);
+
             int? age = null;
             if (profile.BirthDate is DateTime dob)
             {
@@ -76,7 +85,8 @@ namespace Whimsiblog.Controllers
             // Recent activity
             ViewBag.RecentPosts = await _db.BlogPosts.AsNoTracking()
                 .Where(p => p.OwnerUserId == id) // Awaiting new field
-                .OrderByDescending(p => p.BlogPostID)
+                .OrderByDescending(p => p.UpdatedUtc)
+                .ThenByDescending(p => p.CreatedUtc)
                 .Take(5)
                 .ToListAsync();
 
