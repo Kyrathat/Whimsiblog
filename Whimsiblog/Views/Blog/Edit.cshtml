@@ -20,18 +20,37 @@
     </div>
 
     <div class="mb-3">
-    <label asp-for="Description" class="form-label"></label>
-    <textarea asp-for="Description"
-              class="form-control"
-              rows="4"
-              maxlength="1000"
-              placeholder="Tell readers what this blog is about…"></textarea>
-    <span asp-validation-for="Description" class="text-danger"></span>
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description"
+                  class="form-control"
+                  rows="4"
+                  maxlength="1000"
+                  placeholder="Tell readers what this blog is about…"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
 
-    <!-- Live counter output -->
-    <small id="descCounter" class="text-muted d-block mt-1"></small>
-</div>
+        <!-- Live counter output -->
+        <small id="descCounter" class="text-muted d-block mt-1"></small>
+    </div>
 
+    <!-- Updated tag implementation (matches BlogPost Edit) -->
+    <div class="form-group position-relative mb-3">
+        <label asp-for="Tags" class="form-label">Tags</label>
+        <input type="text" id="tagInput" class="form-control" placeholder="Search tags..." autocomplete="off" />
+        <div id="tagSuggestions" class="autocomplete-items"></div>
+
+        <div id="tagCheckboxes" class="mt-2">
+            @foreach (var tag in (ViewBag.AllTags as List<DataAccessLayer.Model.Tag> ?? new List<DataAccessLayer.Model.Tag>()))
+            {
+                <label class="form-check d-block">
+                    <input type="checkbox" name="SelectedTagIDs" value="@tag.TagID"
+                           class="form-check-input"
+                           @(Model.Tags.Any(t => t.TagID == tag.TagID) ? "checked" : "") />
+                    <span class="form-check-label">@tag.Name</span>
+                </label>
+            }
+        </div>
+        <small class="text-muted">Select tags that describe your blog</small>
+    </div>
 
     <button type="submit" class="btn btn-primary">Save</button>
     <a asp-action="Details" asp-route-id="@Model.BlogId" class="btn btn-secondary">Cancel</a>
@@ -40,38 +59,7 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/TagSearchHandling.js" defer></script>
+        <script src="~/js/DescriptionCounter.js" defer></script>
     }
-     
-        <script> // Helpful counter code from ChatGPT
-            (function () {
-                var ta = document.getElementById('Description');
-                var counter = document.getElementById('descCounter');
-                if (!ta || !counter) return;
-
-                // Prefer maxlength, fall back to data-val-length-max, then 1000
-                function getMax() {
-                    var attr = ta.getAttribute('maxlength');
-                    if (attr) return parseInt(attr);
-                    var dataMax = ta.getAttribute('data-val-length-max');
-                    if (dataMax) return parseInt(dataMax);
-                    return 1000;
-                }
-
-                var max = getMax();
-
-                function update() {
-                    var len = (ta.value || '').length;
-                    counter.textContent = len + ' / ' + max + ' characters';
-                    // Optional: color hint when near/over limit
-                    if (len > max) {
-                        counter.classList.add('text-danger');
-                    } else {
-                        counter.classList.remove('text-danger');
-                    }
-                }
-
-                ta.addEventListener('input', update);
-                update(); // set initial value on page load
-            })();
-        </script>
 }

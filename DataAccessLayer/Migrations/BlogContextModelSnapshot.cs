@@ -22,6 +22,21 @@ namespace DataAccessLayer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("BlogTag", b =>
+                {
+                    b.Property<int>("BlogsBlogId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagsTagID")
+                        .HasColumnType("int");
+
+                    b.HasKey("BlogsBlogId", "TagsTagID");
+
+                    b.HasIndex("TagsTagID");
+
+                    b.ToTable("BlogTags", (string)null);
+                });
+
             modelBuilder.Entity("DataAccessLayer.Model.Blog", b =>
                 {
                     b.Property<int>("BlogId")
@@ -130,7 +145,22 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("TagID");
 
-                    b.ToTable("Tag");
+                    b.ToTable("Tags", (string)null);
+                });
+
+            modelBuilder.Entity("BlogTag", b =>
+                {
+                    b.HasOne("DataAccessLayer.Model.Blog", null)
+                        .WithMany()
+                        .HasForeignKey("BlogsBlogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Model.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsTagID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
