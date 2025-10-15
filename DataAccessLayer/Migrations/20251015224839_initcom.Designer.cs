@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    [Migration("20251007234247_AddBlogTagsOnly")]
-    partial class AddBlogTagsOnly
+    [Migration("20251015224839_initcom")]
+    partial class initcom
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -148,10 +148,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("TagID");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("tags", (string)null);
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("BlogTag", b =>

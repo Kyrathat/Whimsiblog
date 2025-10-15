@@ -145,7 +145,22 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("TagID");
 
-                    b.ToTable("tags");
+                    b.ToTable("Tags", (string)null);
+                });
+
+            modelBuilder.Entity("BlogTag", b =>
+                {
+                    b.HasOne("DataAccessLayer.Model.Blog", null)
+                        .WithMany()
+                        .HasForeignKey("BlogsBlogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Model.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsTagID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>

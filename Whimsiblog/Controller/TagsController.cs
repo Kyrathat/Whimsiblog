@@ -197,12 +197,11 @@ namespace Whimsiblog.Controllers
 
             var matches = await _context.Tags
                 .Where(t => t.Name.ToLower().StartsWith(query))
-                .Select(t => new { t.TagID, t.Name }) // ✅ return both id + name
+                .Select(t => new { t.TagID, t.Name })
                 .ToListAsync();
 
             return Json(matches);
         }
-
 
         [HttpPost("/tags/add")]
         public IActionResult AddTag([FromBody] string name)

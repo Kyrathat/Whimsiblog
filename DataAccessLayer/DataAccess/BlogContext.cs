@@ -19,7 +19,7 @@ namespace DataAccessLayer.DataAccess
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<BlogComment> BlogComments { get; set; }
         public DbSet<BlogPost> BlogPosts { get; set; }
-        public DbSet<Tag> tags { get; set; }
+        public DbSet<Tag> Tags { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -51,14 +51,11 @@ namespace DataAccessLayer.DataAccess
             // Configure Tag entity/table
             modelBuilder.Entity<Tag>(entity =>
             {
-                entity.ToTable("tags"); // Use existing table name
+                entity.ToTable("Tags");
                 entity.HasKey(t => t.TagID);
+
                 entity.Property(t => t.Name)
-                      .IsRequired()
-                      .HasMaxLength(50);
-                
-                // Ensure tag names are unique
-                entity.HasIndex(t => t.Name).IsUnique();
+                      .IsRequired();
             });
 
             // Configure many-to-many relationship between Blog and Tag
@@ -68,6 +65,5 @@ namespace DataAccessLayer.DataAccess
                 .UsingEntity(j => j.ToTable("BlogTags"));
 
         }
-        public DbSet<Tag> Tags { get; set; }
     }
 }

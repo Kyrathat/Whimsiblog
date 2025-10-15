@@ -43,7 +43,7 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tag",
+                name: "Tags",
                 columns: table => new
                 {
                     TagID = table.Column<int>(type: "int", nullable: false)
@@ -52,7 +52,7 @@ namespace DataAccessLayer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tag", x => x.TagID);
+                    table.PrimaryKey("PK_Tags", x => x.TagID);
                 });
 
             migrationBuilder.CreateTable(
@@ -83,6 +83,30 @@ namespace DataAccessLayer.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "BlogTags",
+                columns: table => new
+                {
+                    BlogsBlogId = table.Column<int>(type: "int", nullable: false),
+                    TagsTagID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BlogTags", x => new { x.BlogsBlogId, x.TagsTagID });
+                    table.ForeignKey(
+                        name: "FK_BlogTags_Blogs_BlogsBlogId",
+                        column: x => x.BlogsBlogId,
+                        principalTable: "Blogs",
+                        principalColumn: "BlogId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BlogTags_Tags_TagsTagID",
+                        column: x => x.TagsTagID,
+                        principalTable: "Tags",
+                        principalColumn: "TagID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_BlogComments_BlogPostID",
                 table: "BlogComments",
@@ -97,6 +121,11 @@ namespace DataAccessLayer.Migrations
                 name: "IX_Blogs_PrimaryOwnerUserId",
                 table: "Blogs",
                 column: "PrimaryOwnerUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlogTags_TagsTagID",
+                table: "BlogTags",
+                column: "TagsTagID");
         }
 
         /// <inheritdoc />
@@ -106,13 +135,16 @@ namespace DataAccessLayer.Migrations
                 name: "BlogComments");
 
             migrationBuilder.DropTable(
-                name: "Blogs");
-
-            migrationBuilder.DropTable(
-                name: "Tag");
+                name: "BlogTags");
 
             migrationBuilder.DropTable(
                 name: "BlogPosts");
+
+            migrationBuilder.DropTable(
+                name: "Blogs");
+
+            migrationBuilder.DropTable(
+                name: "Tags");
         }
     }
 }
