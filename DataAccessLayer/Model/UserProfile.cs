@@ -13,7 +13,7 @@ namespace DataAccessLayer.Model
         public string? DisplayName { get; set; }
         public string? Email { get; set; }
         public DateTime? BirthDate { get; set; }// NULL until user sets it
-        public AvatarType Avatar { get; set; } = AvatarType.DoomsdayApparatus;
+        public AvatarType Avatar { get; set; } = AvatarType.AvatarPlaceholder1;
         //public string? Bio { get; set; } optional short bio
         public DateTime CreatedUtc { get; set; }
         public DateTime UpdatedUtc { get; set; }

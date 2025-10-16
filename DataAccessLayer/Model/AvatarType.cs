@@ -9,11 +9,11 @@ namespace DataAccessLayer.Model
     // Enum stored as int in the DB. No UI/images yet.
     public enum AvatarType
     {
-        ParadoxicalEnigma = 0,
-        RepugnantAppandage = 1,
-        ProfessionalNoisemaker = 2,
-        AmplifiedAmplifier = 3,
-        DoomsdayApparatus = 4
+        AvatarPlaceholder1,
+        AvatarPlaceholder2,
+        AvatarPlaceholder3,
+        AvatarPlaceholder4,
+        AvatarPlaceholder5
     }
 
 }
