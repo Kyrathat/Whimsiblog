@@ -53,11 +53,19 @@ namespace Whimsiblog.Controllers
         [Authorize(Policy = "Age18+")]
         public async Task<IActionResult> Create(BlogPost blogPost)
         {
+            // Profanity Filter
+            if (_filter.ContainsProfanity(blogPost.Title ?? string.Empty))
+                ModelState.AddModelError(nameof(BlogPost.Title), "Please remove profanity from the title.");
+
+            if (_filter.ContainsProfanity(blogPost.Body ?? string.Empty))
+                ModelState.AddModelError(nameof(BlogPost.Body), "Please remove profanity from the body.");
+
+            // Run your existing validation
             if (!ModelState.IsValid) return View(blogPost);
 
-            var userId = User.FindFirst("oid")?.Value
+            var userId = User.FindFirst("oid")?.Value // Azure AD Object ID
                         ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                        ?? User.FindFirst("sub")?.Value;
+                        ?? User.FindFirst("sub")?.Value; // OpenID Connect subject identifier
 
             if (userId is null) return Challenge();
 
