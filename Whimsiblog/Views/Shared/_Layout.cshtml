@@ -82,17 +82,12 @@
     </div>
 
     @* The 18+ toast *@
+    <script src="~/js/toast.js" asp-append-version="true"></script>
+
     @if (TempData["AuthSuccess"] is string toastMsg)
     {
-        <div class="toast toast-success">
-            @toastMsg
-        </div>
-
-        <script>
-            setTimeout(() => {
-                document.querySelectorAll('.toast-success').forEach(t => t.remove());
-            }, 3000); @* Hides after 3 seconds, 1000 = 1 second*@
-        </script>
+        <div class="toast toast-success">@toastMsg</div> 
+        <script>hideSuccessToastsAfter(3000);</script> @* 1000 = 1 second *@
     }
 
     <footer class="border-top footer text-muted">
