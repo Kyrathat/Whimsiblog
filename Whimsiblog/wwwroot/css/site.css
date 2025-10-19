@@ -1,20 +1,42 @@
+:root {
+    --primary: #B4006B;
+    --accent: #D3108E;
+    --secondary: #E743A9;
+    --light: #F589C7;
+    --lightest: #FFAFD4;
+    --text-dark: #2b2b2b;
+    --text-light: #ffffff;
+}
+
+/* Responsive Font Size */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+/* Body and Page Layout */
+body {
+    margin-bottom: 60px;
+    background-color: var(--lightest);
+    color: var(--text-dark);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+/* Focus Outline for Buttons & Inputs */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--light);
+    border-color: var(--accent);
 }
 
 body {
