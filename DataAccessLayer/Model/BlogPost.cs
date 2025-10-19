@@ -15,7 +15,8 @@ namespace DataAccessLayer.Model
         public string? Title { get; set; } = string.Empty;
         [Required]
         public string? Body { get; set; } = string.Empty;
-        //public Tag? TagID { get; set; }
+
+        public ICollection<Tag> Tags { get; set; } = new List<Tag>();
         //public Blog? BlogID { get; set; }
     }
 }
