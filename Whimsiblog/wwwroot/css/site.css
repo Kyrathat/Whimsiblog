@@ -39,63 +39,8 @@ body {
     border-color: var(--accent);
 }
 
-/* Navbar Styling */
-.navbar {
-    background-color: var(--secondary) !important;
-}
-
-.navbar-brand, .nav-link {
-    color: var(--text-light) !important;
-}
-
-    .nav-link:hover {
-        color: var(--accent) !important;
-    }
-
-/* Headers */
-h1, h4 {
-    color: var(--primary);
-}
-
-/* Primary Button */
-.btn-primary {
-    background-color: var(--primary);
-    border-color: var(--primary);
-    color: var(--text-light);
-}
-
-    .btn-primary:hover {
-        background-color: var(--accent);
-        border-color: var(--accent);
-    }
-
-/* Form Inputs */
-.form-control:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 5px var(--light);
-}
-
-/* Validation/Error */
-.text-danger,
-.error {
-    color: var(--primary);
-    padding: 8px;
-}
-
-/* Links */
-a {
-    color: var(--accent);
-}
-
-    a:hover {
-        color: var(--primary);
-    }
-
-/* Footer */
-footer.footer {
-    background-color: var(--secondary);
-    color: var(--text-light);
-    padding: 1rem;
+body {
+  margin-bottom: 60px;
 }
 
 /* Suggestions container */
@@ -118,7 +63,7 @@ footer.footer {
 }
 
     .suggestion-item:hover {
-        background-color: var(--lightest);
+        background-color: #f0f0f0;
     }
 
 /* "Add New Tag" button */
@@ -126,7 +71,7 @@ footer.footer {
     display: block;
     width: 100%;
     padding: 8px;
-    background-color: var(--primary);
+    background-color: #007bff;
     color: white;
     border: none;
     cursor: pointer;
@@ -135,5 +80,11 @@ footer.footer {
 }
 
     .add-new-tag-btn:hover {
-        background-color: var(--accent);
+        background-color: #0056b3;
     }
+
+/* Error message */
+.error {
+    color: red;
+    padding: 8px;
+}
