@@ -8,6 +8,8 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 builder.Services.AddDbContext<BlogContext>(opt =>
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -37,6 +39,13 @@ builder.Services.AddDbContext<BlogContext>(options =>
     options.UseSqlServer(blogConnection));
 
 var app = builder.Build();
+
+// Update the database to Azure
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<BlogContext>();
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
