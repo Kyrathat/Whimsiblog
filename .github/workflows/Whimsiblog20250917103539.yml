@@ -8,7 +8,7 @@ on:
 
     branches:
 
-      - AZFIX-1
+      - main
 
   workflow_dispatch:
 
