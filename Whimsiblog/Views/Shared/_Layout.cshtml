@@ -1,5 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
+    @using System
+@{
+    // Grab the current route values so we can highlight the matching nav item.
+    // These come from the executed action/controller for the current request.
+    string? currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    string? currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    // Helper: returns "active" when the given controller/action matches the current page.
+    // - Default action is "Index" so you can call Active("Home") or Active("Profile").
+    // - Uses OrdinalIgnoreCase for predictable case-insensitive comparison.
+    // - If it doesn't match, return empty string so the class isn't added.
+    string Active(string controller, string action = "Index") =>
+        string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
+            ? "active"
+            : "";
+}
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -38,6 +57,18 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Tags" asp-action="Index">Tags</a>
                         </li>
+
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                            {
+                            <li class="nav-item">
+                                <a class="nav-link @Active("Profile", "Index")"
+                                asp-area=""
+                                asp-controller="Profile"
+                                asp-action="Index">
+                                    Profile
+                                </a>
+                            </li>
+                           }
                     </ul>
                 <partial name="_LoginPartial" />
                 </div>
@@ -49,6 +80,15 @@
             @RenderBody()
         </main>
     </div>
+
+    @* The 18+ toast *@
+    <script src="~/js/toast.js" asp-append-version="true"></script>
+
+    @if (TempData["AuthSuccess"] is string toastMsg)
+    {
+        <div class="toast toast-success">@toastMsg</div> 
+        <script>hideSuccessToastsAfter(3000);</script> @* 1000 = 1 second *@
+    }
 
     <footer class="border-top footer text-muted">
         <div class="container">

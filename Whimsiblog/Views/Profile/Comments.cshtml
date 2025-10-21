@@ -1,0 +1,9 @@
+﻿Views/Profile/Comments.cshtml
+@model IEnumerable<DataAccessLayer.Model.BlogComment>
+<h2>My Comments</h2>
+<ul>
+    @foreach (var c in Model)
+    {
+        <li>#@c.BlogCommentID on post #@c.BlogPostID — @c.Body</li>
+    }
+</ul>

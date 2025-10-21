@@ -91,21 +91,25 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("OwnerUserId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OwnerUserName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<int?>("ParentCommentID")
                         .HasColumnType("int");
 
                     b.HasKey("BlogCommentID");
 
-                    b.HasIndex("BlogPostID");
+                    b.HasIndex("OwnerUserId");
 
                     b.HasIndex("ParentCommentID");
 
-                    b.ToTable("BlogComments");
+                    b.HasIndex("BlogPostID", "BlogCommentID");
+
+                    b.ToTable("BlogComments", (string)null);
                 });
 
             modelBuilder.Entity("DataAccessLayer.Model.BlogPost", b =>
@@ -120,10 +124,28 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("OwnerUserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("OwnerUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime?>("UpdatedUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.HasKey("BlogPostID");
 
@@ -148,6 +170,41 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Tags");
                 });
 
+<<<<<<< HEAD
+            modelBuilder.Entity("DataAccessLayer.Model.UserProfile", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("Avatar")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("UpdatedUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserProfiles", (string)null);
+=======
             modelBuilder.Entity("BlogPostTag", b =>
                 {
                     b.HasOne("DataAccessLayer.Model.BlogPost", null)
@@ -161,6 +218,7 @@ namespace DataAccessLayer.Migrations
                         .HasForeignKey("TagsTagID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
@@ -173,7 +231,8 @@ namespace DataAccessLayer.Migrations
 
                     b.HasOne("DataAccessLayer.Model.BlogComment", "ParentComment")
                         .WithMany("Replies")
-                        .HasForeignKey("ParentCommentID");
+                        .HasForeignKey("ParentCommentID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("BlogPost");
 

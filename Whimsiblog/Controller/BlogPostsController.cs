@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.DataAccess;
 using DataAccessLayer.Model;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Whimsiblog.Controllers
 {
@@ -40,17 +42,48 @@ namespace Whimsiblog.Controllers
         }
 
         // GET: BlogPosts/Create
+<<<<<<< HEAD
+        [Authorize(Policy = "Age18+")]
+        public IActionResult Create()
+=======
         public async Task<IActionResult> Create()
+>>>>>>> origin/main
         {
             ViewBag.AllTags = await _context.Tags.ToListAsync();
             return View();
         }
 
-        // POST: BlogPosts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+<<<<<<< HEAD
+        [Authorize(Policy = "Age18+")]
+        public async Task<IActionResult> Create(BlogPost blogPost)
+        {
+            // Profanity Filter
+            if (_filter.ContainsProfanity(blogPost.Title ?? string.Empty))
+                ModelState.AddModelError(nameof(BlogPost.Title), "Please remove profanity from the title.");
+
+            if (_filter.ContainsProfanity(blogPost.Body ?? string.Empty))
+                ModelState.AddModelError(nameof(BlogPost.Body), "Please remove profanity from the body.");
+
+            // Run your existing validation
+            if (!ModelState.IsValid) return View(blogPost);
+
+            var userId = User.FindFirst("oid")?.Value // Azure AD Object ID
+                        ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                        ?? User.FindFirst("sub")?.Value; // OpenID Connect subject identifier
+
+            if (userId is null) return Challenge();
+
+            blogPost.OwnerUserId = userId;
+            blogPost.OwnerUserName = User.Identity?.Name;
+            // CreatedUtc will be filled by the DB default
+
+            _context.BlogPosts.Add(blogPost);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+=======
         public async Task<IActionResult> Create(BlogPost blogPost, int[] SelectedTagIDs)
         {
             if (ModelState.IsValid)
@@ -74,6 +107,7 @@ namespace Whimsiblog.Controllers
             // Re-populate ViewBag.AllTags in case of redisplay
             ViewBag.AllTags = await _context.Tags.ToListAsync();
             return View(blogPost);
+>>>>>>> origin/main
         }
 
 
@@ -109,15 +143,29 @@ namespace Whimsiblog.Controllers
             {
                 try
                 {
+<<<<<<< HEAD
+                    if (_filter.ContainsProfanity(blogPost.Title) || _filter.ContainsProfanity(blogPost.Body))
+=======
                     if (!_filter.ContainsProfanity(blogPost.Title) && !_filter.ContainsProfanity(blogPost.Body))
                     {
                         _context.Update(blogPost);
                         await _context.SaveChangesAsync();
                     }
                     else
+>>>>>>> origin/main
                     {
                         throw new Exception();
                     }
+
+                    // Load the existing entity so we don't mess up the other database items
+                    var entity = await _context.BlogPosts.FindAsync(id);
+                    if (entity == null) return NotFound();
+
+                    entity.Title = blogPost.Title;
+                    entity.Body = blogPost.Body;
+                    entity.UpdatedUtc = DateTime.UtcNow; // Used to update the Profile History
+
+                    await _context.SaveChangesAsync();
 
                 }
                 catch (DbUpdateConcurrencyException)

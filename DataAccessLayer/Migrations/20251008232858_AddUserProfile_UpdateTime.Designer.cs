@@ -12,13 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(BlogContext))]
-<<<<<<<< HEAD:DataAccessLayer/Migrations/20251008231610_InitialRebuild.Designer.cs
-    [Migration("20251008231610_InitialRebuild")]
-    partial class InitialRebuild
-========
-    [Migration("20251006153240_initcom")]
-    partial class initcom
->>>>>>>> origin/main:DataAccessLayer/Migrations/20251006153240_initcom.Designer.cs
+    [Migration("20251008232858_AddUserProfile_UpdateTime")]
+    partial class AddUserProfile_UpdateTime
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -142,7 +137,6 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("TagID");
 
-<<<<<<<< HEAD:DataAccessLayer/Migrations/20251008231610_InitialRebuild.Designer.cs
                     b.ToTable("Tags");
                 });
 
@@ -171,12 +165,14 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<DateTime>("UpdatedUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
                     b.HasKey("Id");
 
                     b.ToTable("UserProfiles", (string)null);
-========
-                    b.ToTable("Tag");
->>>>>>>> origin/main:DataAccessLayer/Migrations/20251006153240_initcom.Designer.cs
                 });
 
             modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
