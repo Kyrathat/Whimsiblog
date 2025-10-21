@@ -20,8 +20,11 @@ namespace DataAccessLayer.DataAccess
         public DbSet<BlogComment> BlogComments { get; set; }
         public DbSet<BlogPost> BlogPosts { get; set; }
         public DbSet<Tag> Tags { get; set; }
+<<<<<<< HEAD
         public DbSet<UserProfile> UserProfiles { get; set; }
 
+=======
+>>>>>>> origin/main
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -107,7 +110,17 @@ namespace DataAccessLayer.DataAccess
                 entity.HasIndex(c => new { c.BlogPostID, c.BlogCommentID });
             });
 
-        }
+            // Creating a Join Table for BlogPost_Tags.  Shows a relationship where you can have Many Tags with many Posts.
+            //Then Saves the results to a BlogPost_Tags table. 
+            modelBuilder.Entity<BlogPost>()
+        .HasMany(bp => bp.Tags)
+        .WithMany(t => t.BlogPosts)
+        .UsingEntity(j => j.ToTable("BlogPost_Tags"));
 
+        }
+<<<<<<< HEAD
+
+=======
+>>>>>>> origin/main
     }
 }

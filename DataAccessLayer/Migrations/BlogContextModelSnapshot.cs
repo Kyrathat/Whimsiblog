@@ -22,6 +22,21 @@ namespace DataAccessLayer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("BlogPostTag", b =>
+                {
+                    b.Property<int>("BlogPostsBlogPostID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagsTagID")
+                        .HasColumnType("int");
+
+                    b.HasKey("BlogPostsBlogPostID", "TagsTagID");
+
+                    b.HasIndex("TagsTagID");
+
+                    b.ToTable("BlogPost_Tags", (string)null);
+                });
+
             modelBuilder.Entity("DataAccessLayer.Model.Blog", b =>
                 {
                     b.Property<int>("BlogId")
@@ -155,6 +170,7 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Tags");
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("DataAccessLayer.Model.UserProfile", b =>
                 {
                     b.Property<string>("Id")
@@ -188,6 +204,21 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UserProfiles", (string)null);
+=======
+            modelBuilder.Entity("BlogPostTag", b =>
+                {
+                    b.HasOne("DataAccessLayer.Model.BlogPost", null)
+                        .WithMany()
+                        .HasForeignKey("BlogPostsBlogPostID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Model.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsTagID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>

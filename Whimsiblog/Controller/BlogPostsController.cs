@@ -42,14 +42,20 @@ namespace Whimsiblog.Controllers
         }
 
         // GET: BlogPosts/Create
+<<<<<<< HEAD
         [Authorize(Policy = "Age18+")]
         public IActionResult Create()
+=======
+        public async Task<IActionResult> Create()
+>>>>>>> origin/main
         {
+            ViewBag.AllTags = await _context.Tags.ToListAsync();
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+<<<<<<< HEAD
         [Authorize(Policy = "Age18+")]
         public async Task<IActionResult> Create(BlogPost blogPost)
         {
@@ -77,7 +83,33 @@ namespace Whimsiblog.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+=======
+        public async Task<IActionResult> Create(BlogPost blogPost, int[] SelectedTagIDs)
+        {
+            if (ModelState.IsValid)
+            {
+                // Load tags from DB for the selected IDs
+                if (SelectedTagIDs != null && SelectedTagIDs.Length > 0)
+                {
+                    var selectedTags = await _context.Tags
+                        .Where(t => SelectedTagIDs.Contains(t.TagID))
+                        .ToListAsync();
+
+                    blogPost.Tags = selectedTags;
+                }
+
+                // Add the blog post to the database
+                _context.Add(blogPost);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Re-populate ViewBag.AllTags in case of redisplay
+            ViewBag.AllTags = await _context.Tags.ToListAsync();
+            return View(blogPost);
+>>>>>>> origin/main
         }
+
 
         // GET: BlogPosts/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -111,7 +143,16 @@ namespace Whimsiblog.Controllers
             {
                 try
                 {
+<<<<<<< HEAD
                     if (_filter.ContainsProfanity(blogPost.Title) || _filter.ContainsProfanity(blogPost.Body))
+=======
+                    if (!_filter.ContainsProfanity(blogPost.Title) && !_filter.ContainsProfanity(blogPost.Body))
+                    {
+                        _context.Update(blogPost);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+>>>>>>> origin/main
                     {
                         throw new Exception();
                     }
@@ -163,7 +204,6 @@ namespace Whimsiblog.Controllers
 
         // POST: BlogPosts/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var blogPost = await _context.BlogPosts.FindAsync(id);
