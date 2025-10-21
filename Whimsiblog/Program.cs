@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using Whimsiblog.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<BlogContext>(opt =>
@@ -15,6 +16,11 @@ builder.Services.AddDbContext<BlogContext>(opt =>
 
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+
+// Allow the Hello___! Banner to display a userName instead
+builder.Services.Configure<OpenIdConnectOptions>(
+    OpenIdConnectDefaults.AuthenticationScheme,
+    options => options.TokenValidationParameters.NameClaimType = "name");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews(options =>
@@ -26,6 +32,28 @@ builder.Services.AddControllersWithViews(options =>
 });
 builder.Services.AddRazorPages()
     .AddMicrosoftIdentityUI();
+
+// - - - - - - - - - - 18+ Section - - - - - - - - - - 
+
+// Add the 18+ validation onto the whole site
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Age18+",
+        policy => policy.Requirements.Add(new AgeRequirement(18))); // Set the age of the validation (18+)
+});
+//  /!\ Handler lifetime MUST be scoped if it uses BlogContext /!\
+builder.Services.AddScoped<IAuthorizationHandler, AgeRequirementHandler>();
+
+// Global “must be signed in”, NOT Age18+, the 18+ one breaks the site
+builder.Services.AddControllersWithViews(o =>
+{
+    var authOnly = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+    o.Filters.Add(new AuthorizeFilter(authOnly));
+});
+
+// - - - - - - - - - - End Section - - - - - - - - - - 
 
 // Try to read a dedicated connection string for the DefaultConnection.
 var blogConnection = builder.Configuration.GetConnectionString("DefaultConnection");

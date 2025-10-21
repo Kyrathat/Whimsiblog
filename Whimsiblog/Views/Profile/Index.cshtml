@@ -1,0 +1,130 @@
+﻿@model DataAccessLayer.Model.UserProfile
+
+@{
+    // Page title
+    ViewData["Title"] = "My Profile";
+
+    // Values populated by the controller
+    int? age = ViewBag.Age as int?;
+    bool isAdult = (ViewBag.IsAdult as bool?) ?? false;
+
+    // Recent activity payloads 
+    var recentPosts = ViewBag.RecentPosts
+        as IEnumerable<DataAccessLayer.Model.BlogPost>
+        ?? Enumerable.Empty<DataAccessLayer.Model.BlogPost>();
+
+
+    var recentComments = ViewBag.RecentComments
+        as IEnumerable<DataAccessLayer.Model.BlogComment>
+        ?? Enumerable.Empty<DataAccessLayer.Model.BlogComment>();
+
+    // Compute post counts
+    int postCount = ViewBag.PostCount as int? ?? recentPosts.Count();
+    int commentCount = ViewBag.CommentCount as int? ?? recentComments.Count();
+}
+
+<h2 class="mb-3">My Profile</h2>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                @* Prefer DisplayName; if it's empty, show email; if both empty, fallback text *@
+                <h4 class="card-title mb-1">
+                    @(string.IsNullOrWhiteSpace(Model.DisplayName)
+                            ? (string.IsNullOrWhiteSpace(Model.Email) ? "Profile" : Model.Email)
+                            : Model.DisplayName)
+                </h4>
+                @if (!string.IsNullOrWhiteSpace(Model.Email) && !string.Equals(Model.Email, Model.DisplayName, StringComparison.OrdinalIgnoreCase))
+                {
+                        <div class="text-muted">@Model.Email</div>
+                }
+            </div>
+            
+            @* AI's Age Badge: shows “18+ verified” (green), “Age N” (amber), or “Birth date not set” (gray) *@
+            <div>
+                @if (age.HasValue)
+                {
+                        <span class="badge @(isAdult ? "bg-success" : "bg-warning text-dark")">
+                        @(isAdult ? "18+ verified" : $"Age {age}")
+                        </span>
+                }
+                else
+                {
+                        <span class="badge bg-secondary">Birth date not set</span>
+                }
+            </div>
+        </div>
+
+        <hr />
+
+        @* Key profile fields, uses dashes when values are missing *@
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Birth date</dt>
+            <dd class="col-sm-9">@((Model.BirthDate?.ToString("yyyy-MM-dd")) ?? "—")</dd>
+
+            <dt class="col-sm-3">Age</dt>
+            <dd class="col-sm-9">@((age?.ToString()) ?? "—")</dd>
+
+            <dt class="col-sm-3">Created (UTC)</dt>
+            <dd class="col-sm-9">@((Model.CreatedUtc == default ? null : Model.CreatedUtc.ToString("u")) ?? "—")</dd>
+
+            <dt class="col-sm-3">Updated (UTC)</dt>
+            <dd class="col-sm-9">@((Model.UpdatedUtc == default ? null : Model.UpdatedUtc.ToString("u")) ?? "—")</dd>
+        </dl>
+
+        <div class="mt-3">
+            <a asp-action="Edit" class="btn btn-primary">Edit profile</a>
+        </div>
+    </div>
+</div>
+
+@* ----- Recent Posts and Comments ----- *@
+<div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+    <h3 class="mb-0">Recent Posts (@postCount)</h3>
+    <a class="btn btn-outline-secondary btn-sm"
+       asp-action="Posts">View all</a>
+</div>
+    <div class="card-body">
+        @if (!recentPosts.Any())
+        {
+                <div class="text-muted">No posts yet.</div>
+        }
+        else
+        {
+                <ul class="mb-0">
+                @* Show a line with ID and Title for each post *@
+                @foreach (var p in recentPosts)
+                {
+                            <li>#@p.BlogPostID — @p.Title</li>
+                }
+                </ul>
+        }
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Comments (@commentCount)</h5>
+        <a class="btn btn-outline-secondary btn-sm"
+           asp-controller="Profile" asp-action="Comments">View all</a>
+    </div>
+
+</div>
+    <div class="card-body">
+        @if (!recentComments.Any())
+        {
+                <div class="text-muted">No comments yet.</div>
+        }
+        else
+        {
+                <ul class="mb-0">
+                @* For each comment, show its ID, the post it belongs to, and the (encoded) body *@
+                @foreach (var c in recentComments)
+                {
+                            <li>#@c.BlogCommentID on post #@c.BlogPostID — @c.Body</li>
+                }
+                </ul>
+        }
+    </div>
+</div>

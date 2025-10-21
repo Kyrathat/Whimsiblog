@@ -66,6 +66,7 @@ namespace Whimsiblog.Controllers
         }
 
         // GET: BlogComments/Create
+        [Authorize(Policy = "Age18+")]
         public IActionResult Create(int? blogPostId, int? parentCommentId)
         {
             ViewBag.BlogPostID = new SelectList(_context.BlogPosts, "BlogPostID", "Title", blogPostId);
@@ -82,7 +83,7 @@ namespace Whimsiblog.Controllers
         // POST: BlogComments/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize]
+        [Authorize(Policy = "Age18+")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Body,BlogPostID,ParentCommentID")] BlogComment comment)

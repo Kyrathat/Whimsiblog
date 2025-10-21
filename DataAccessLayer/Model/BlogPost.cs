@@ -18,5 +18,15 @@ namespace DataAccessLayer.Model
 
         public ICollection<Tag> Tags { get; set; } = new List<Tag>();
         //public Blog? BlogID { get; set; }
+
+        [StringLength(450)]
+        public string? OwnerUserId { get; set; }   // AAD object id
+
+        [StringLength(256)]
+        public string? OwnerUserName { get; set; } // Name /!!\ at time of post /!!\
+                                                    // Name does not update
+        public DateTime CreatedUtc { get; set; }
+
+        public DateTime? UpdatedUtc { get; set; }
     }
 }

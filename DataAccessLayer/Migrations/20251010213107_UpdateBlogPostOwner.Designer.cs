@@ -4,6 +4,7 @@ using DataAccessLayer.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    partial class BlogContextModelSnapshot : ModelSnapshot
+
+    [Migration("20251010213107_UpdateBlogPostOwner")]
+    partial class UpdateBlogPostOwner
+   
+
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +27,6 @@ namespace DataAccessLayer.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("BlogPostTag", b =>
-                {
-                    b.Property<int>("BlogPostsBlogPostID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TagsTagID")
-                        .HasColumnType("int");
-
-                    b.HasKey("BlogPostsBlogPostID", "TagsTagID");
-
-                    b.HasIndex("TagsTagID");
-
-                    b.ToTable("BlogPost_Tags", (string)null);
-                });
 
             modelBuilder.Entity("DataAccessLayer.Model.Blog", b =>
                 {
@@ -99,6 +90,12 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<int?>("ParentCommentID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OwnerUserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ParentCommentID")
                         .HasColumnType("int");
 
                     b.HasKey("BlogCommentID");
@@ -110,6 +107,11 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("BlogPostID", "BlogCommentID");
 
                     b.ToTable("BlogComments", (string)null);
+                    b.HasIndex("BlogPostID");
+
+                    b.HasIndex("ParentCommentID");
+
+                    b.ToTable("BlogComments");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Model.BlogPost", b =>
@@ -124,28 +126,13 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
                     b.Property<string>("OwnerUserId")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("OwnerUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
-
-                    b.Property<DateTime?>("UpdatedUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.HasKey("BlogPostID");
 
@@ -166,9 +153,9 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("TagID");
-
                     b.ToTable("Tags");
                 });
+
             modelBuilder.Entity("DataAccessLayer.Model.UserProfile", b =>
                 {
                     b.Property<string>("Id")
@@ -202,45 +189,32 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UserProfiles", (string)null);
-                    modelBuilder.Entity("BlogPostTag", b =>
-                        {
-                            b.HasOne("DataAccessLayer.Model.BlogPost", null)
-                                .WithMany()
-                                .HasForeignKey("BlogPostsBlogPostID")
-                                .OnDelete(DeleteBehavior.Cascade)
-                                .IsRequired();
-
-                            b.HasOne("DataAccessLayer.Model.Tag", null)
-                                .WithMany()
-                                .HasForeignKey("TagsTagID")
-                                .OnDelete(DeleteBehavior.Cascade)
-                                .IsRequired();
-                        });
-
-                    modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
-                        {
-                            b.HasOne("DataAccessLayer.Model.BlogPost", "BlogPost")
-                                .WithMany()
-                                .HasForeignKey("BlogPostID")
-                                .OnDelete(DeleteBehavior.Cascade)
-                                .IsRequired();
-
-                            b.HasOne("DataAccessLayer.Model.BlogComment", "ParentComment")
-                                .WithMany("Replies")
-                                .HasForeignKey("ParentCommentID")
-                                .OnDelete(DeleteBehavior.Restrict);
-
-                            b.Navigation("BlogPost");
-
-                            b.Navigation("ParentComment");
-                        });
-
-                    modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
-                        {
-                            b.Navigation("Replies");
-                        });
-#pragma warning restore 612, 618
+                    b.ToTable("Tag");
                 });
+
+            modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
+                {
+                    b.HasOne("DataAccessLayer.Model.BlogPost", "BlogPost")
+                        .WithMany()
+                        .HasForeignKey("BlogPostID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Model.BlogComment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("BlogPost");
+
+                    b.Navigation("ParentComment");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
+                {
+                    b.Navigation("Replies");
+                });
+#pragma warning restore 612, 618
         }
     }
-    }
+}

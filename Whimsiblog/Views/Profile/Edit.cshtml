@@ -1,0 +1,47 @@
+﻿@model DataAccessLayer.Model.UserProfile
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<h2>My Profile</h2>
+
+@if (TempData["ProfileSaved"] is string msg)
+{
+        <div class="alert alert-success">@msg</div>
+}
+
+<form asp-action="Edit" method="post">
+    <input asp-for="Id" type="hidden" />
+
+    <div class="mb-3">
+        <label asp-for="DisplayName" class="form-label"></label>
+        <input asp-for="DisplayName" class="form-control" />
+        <span asp-validation-for="DisplayName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="BirthDate" class="form-label">Birth date</label>
+        <input asp-for="BirthDate" type="date" class="form-control" />
+        <span asp-validation-for="BirthDate" class="text-danger"></span>
+    </div>
+
+    @*
+    <div class="mb-3">
+        <label asp-for="AvatarType" class="form-label">Profile Picture</label>
+        <input asp-for="AvatarType" type="AvatarType" class="form-control" />
+        <span asp-validation-for="AvatarType" class="text-danger"></span>
+    </div>
+    *@
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+@section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+}

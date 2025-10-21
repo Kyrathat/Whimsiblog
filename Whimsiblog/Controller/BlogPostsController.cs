@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.DataAccess;
 using DataAccessLayer.Model;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Whimsiblog.Controllers
 {
@@ -40,137 +42,179 @@ namespace Whimsiblog.Controllers
         }
 
         // GET: BlogPosts/Create
+
+        [Authorize(Policy = "Age18+")]
         public async Task<IActionResult> Create()
+
         {
             ViewBag.AllTags = await _context.Tags.ToListAsync();
             return View();
         }
 
-        // POST: BlogPosts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(BlogPost blogPost, int[] SelectedTagIDs)
+        [Authorize(Policy = "Age18+")]
+        public async Task<IActionResult> Create(BlogPost blogPost)
         {
-            if (ModelState.IsValid)
-            {
-                // Load tags from DB for the selected IDs
-                if (SelectedTagIDs != null && SelectedTagIDs.Length > 0)
-                {
-                    var selectedTags = await _context.Tags
-                        .Where(t => SelectedTagIDs.Contains(t.TagID))
-                        .ToListAsync();
+            // Profanity Filter
+            if (_filter.ContainsProfanity(blogPost.Title ?? string.Empty))
+                ModelState.AddModelError(nameof(BlogPost.Title), "Please remove profanity from the title.");
 
-                    blogPost.Tags = selectedTags;
+            if (_filter.ContainsProfanity(blogPost.Body ?? string.Empty))
+                ModelState.AddModelError(nameof(BlogPost.Body), "Please remove profanity from the body.");
+
+            // Run your existing validation
+            if (!ModelState.IsValid) return View(blogPost);
+
+            var userId = User.FindFirst("oid")?.Value // Azure AD Object ID
+                        ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                        ?? User.FindFirst("sub")?.Value; // OpenID Connect subject identifier
+
+            if (userId is null) return Challenge();
+
+            blogPost.OwnerUserId = userId;
+            blogPost.OwnerUserName = User.Identity?.Name;
+            // CreatedUtc will be filled by the DB default
+
+            _context.BlogPosts.Add(blogPost);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+            public async Task<IActionResult> Create(BlogPost blogPost, int[] SelectedTagIDs)
+            {
+                if (ModelState.IsValid)
+                {
+                    // Load tags from DB for the selected IDs
+                    if (SelectedTagIDs != null && SelectedTagIDs.Length > 0)
+                    {
+                        var selectedTags = await _context.Tags
+                            .Where(t => SelectedTagIDs.Contains(t.TagID))
+                            .ToListAsync();
+
+                        blogPost.Tags = selectedTags;
+                    }
+
+                    // Add the blog post to the database
+                    _context.Add(blogPost);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
 
-                // Add the blog post to the database
-                _context.Add(blogPost);
+                // Re-populate ViewBag.AllTags in case of redisplay
+                ViewBag.AllTags = await _context.Tags.ToListAsync();
+                return View(blogPost);
+
+            }
+
+
+            // GET: BlogPosts/Edit/5
+            public async Task<IActionResult> Edit(int? id)
+            {
+                if (id == null)
+                {
+                    return NotFound();
+                }
+
+                var blogPost = await _context.BlogPosts.FindAsync(id);
+                if (blogPost == null)
+                {
+                    return NotFound();
+                }
+                return View(blogPost);
+            }
+
+            // POST: BlogPosts/Edit/5
+            // To protect from overposting attacks, enable the specific properties you want to bind to.
+            // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Edit(int id, [Bind("BlogPostID,Title,Body")] BlogPost blogPost)
+            {
+                if (id != blogPost.BlogPostID)
+                {
+                    return NotFound();
+                }
+
+                if (ModelState.IsValid)
+                {
+                    try
+                    {
+
+                        if (_filter.ContainsProfanity(blogPost.Title) || _filter.ContainsProfanity(blogPost.Body))
+
+                            if (!_filter.ContainsProfanity(blogPost.Title) && !_filter.ContainsProfanity(blogPost.Body))
+                            {
+                                _context.Update(blogPost);
+                                await _context.SaveChangesAsync();
+                            }
+                            else
+                            {
+                                throw new Exception();
+                            }
+
+                        // Load the existing entity so we don't mess up the other database items
+                        var entity = await _context.BlogPosts.FindAsync(id);
+                        if (entity == null) return NotFound();
+
+                        entity.Title = blogPost.Title;
+                        entity.Body = blogPost.Body;
+                        entity.UpdatedUtc = DateTime.UtcNow; // Used to update the Profile History
+
+                        await _context.SaveChangesAsync();
+
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!BlogPostExists(blogPost.BlogPostID))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(blogPost);
+            }
+
+            // GET: BlogPosts/Delete/5
+            public async Task<IActionResult> Delete(int? id)
+            {
+                if (id == null)
+                {
+                    return NotFound();
+                }
+
+                var blogPost = await _context.BlogPosts
+                    .FirstOrDefaultAsync(m => m.BlogPostID == id);
+                if (blogPost == null)
+                {
+                    return NotFound();
+                }
+
+                return View(blogPost);
+            }
+
+            // POST: BlogPosts/Delete/5
+            [HttpPost, ActionName("Delete")]
+            public async Task<IActionResult> DeleteConfirmed(int id)
+            {
+                var blogPost = await _context.BlogPosts.FindAsync(id);
+                if (blogPost != null)
+                {
+                    _context.BlogPosts.Remove(blogPost);
+                }
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 
-            // Re-populate ViewBag.AllTags in case of redisplay
-            ViewBag.AllTags = await _context.Tags.ToListAsync();
-            return View(blogPost);
-        }
-
-
-        // GET: BlogPosts/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
+            private bool BlogPostExists(int id)
             {
-                return NotFound();
+                return _context.BlogPosts.Any(e => e.BlogPostID == id);
             }
-
-            var blogPost = await _context.BlogPosts.FindAsync(id);
-            if (blogPost == null)
-            {
-                return NotFound();
-            }
-            return View(blogPost);
-        }
-
-        // POST: BlogPosts/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BlogPostID,Title,Body")] BlogPost blogPost)
-        {
-            if (id != blogPost.BlogPostID)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    if (!_filter.ContainsProfanity(blogPost.Title) && !_filter.ContainsProfanity(blogPost.Body))
-                    {
-                        _context.Update(blogPost);
-                        await _context.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        throw new Exception();
-                    }
-
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BlogPostExists(blogPost.BlogPostID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(blogPost);
-        }
-
-        // GET: BlogPosts/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var blogPost = await _context.BlogPosts
-                .FirstOrDefaultAsync(m => m.BlogPostID == id);
-            if (blogPost == null)
-            {
-                return NotFound();
-            }
-
-            return View(blogPost);
-        }
-
-        // POST: BlogPosts/Delete/5
-        [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var blogPost = await _context.BlogPosts.FindAsync(id);
-            if (blogPost != null)
-            {
-                _context.BlogPosts.Remove(blogPost);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool BlogPostExists(int id)
-        {
-            return _context.BlogPosts.Any(e => e.BlogPostID == id);
         }
     }
-}
