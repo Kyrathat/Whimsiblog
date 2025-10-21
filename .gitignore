@@ -8,3 +8,11 @@ obj/
 *.pdb
 *.exe
 /DataAccessLayer/Migrations
+# build output
+**/bin/
+**/obj/
+*.dll
+*.pdb
+*.deps.json
+*.exe
+*.cache
