@@ -16,3 +16,5 @@ obj/
 *.deps.json
 *.exe
 *.cache
+/Whimsiblog/obj/Debug/net8.0/Whimsiblog.AssemblyInfo.cs
+/Whimsiblog/obj/Debug/net8.0/Whimsiblog.AssemblyInfoInputs.cache
