@@ -54,62 +54,53 @@ namespace Whimsiblog.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "Age18+")]
-        public async Task<IActionResult> Create(BlogPost blogPost)
+        public async Task<IActionResult> Create(BlogPost blogPost, int[]? SelectedTagIDs)
         {
-            // Profanity Filter
+            // --- Profanity checks ---
             if (_filter.ContainsProfanity(blogPost.Title ?? string.Empty))
                 ModelState.AddModelError(nameof(BlogPost.Title), "Please remove profanity from the title.");
 
             if (_filter.ContainsProfanity(blogPost.Body ?? string.Empty))
                 ModelState.AddModelError(nameof(BlogPost.Body), "Please remove profanity from the body.");
 
-            // Run your existing validation
-            if (!ModelState.IsValid) return View(blogPost);
+            // If anything failed validation, redisplay with tag list
+            if (!ModelState.IsValid)
+            {
+                ViewBag.AllTags = await _context.Tags.ToListAsync();
+                return View(blogPost);
+            }
 
-            var userId = User.FindFirst("oid")?.Value // Azure AD Object ID
-                        ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                        ?? User.FindFirst("sub")?.Value; // OpenID Connect subject identifier
+            // --- Figure out current user ---
+            var userId = User.FindFirst("oid")?.Value
+                      ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                      ?? User.FindFirst("sub")?.Value;
 
-            if (userId is null) return Challenge();
+            if (string.IsNullOrEmpty(userId))
+                return Challenge(); // not signed in or cannot identify
 
             blogPost.OwnerUserId = userId;
             blogPost.OwnerUserName = User.Identity?.Name;
-            // CreatedUtc will be filled by the DB default
 
+            // --- Attach selected tags (many-to-many) ---
+            if (SelectedTagIDs is { Length: > 0 })
+            {
+                var selectedTags = await _context.Tags
+                    .Where(t => SelectedTagIDs.Contains(t.TagID))
+                    .ToListAsync();
+
+                blogPost.Tags = selectedTags; // EF will create the join rows
+            }
+
+            // --- Persist ---
             _context.BlogPosts.Add(blogPost);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
-            public async Task<IActionResult> Create(BlogPost blogPost, int[] SelectedTagIDs)
-            {
-                if (ModelState.IsValid)
-                {
-                    // Load tags from DB for the selected IDs
-                    if (SelectedTagIDs != null && SelectedTagIDs.Length > 0)
-                    {
-                        var selectedTags = await _context.Tags
-                            .Where(t => SelectedTagIDs.Contains(t.TagID))
-                            .ToListAsync();
-
-                        blogPost.Tags = selectedTags;
-                    }
-
-                    // Add the blog post to the database
-                    _context.Add(blogPost);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-
-                // Re-populate ViewBag.AllTags in case of redisplay
-                ViewBag.AllTags = await _context.Tags.ToListAsync();
-                return View(blogPost);
-
-            }
 
 
-            // GET: BlogPosts/Edit/5
-            public async Task<IActionResult> Edit(int? id)
+        // GET: BlogPosts/Edit/5
+        public async Task<IActionResult> Edit(int? id)
             {
                 if (id == null)
                 {
