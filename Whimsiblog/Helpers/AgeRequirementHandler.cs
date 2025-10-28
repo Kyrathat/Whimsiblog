@@ -15,8 +15,11 @@ namespace Whimsiblog.Helpers
     public class AgeRequirementHandler : AuthorizationHandler<AgeRequirement>
     {
         private readonly BlogContext _db;
-        
-        public AgeRequirementHandler(BlogContext db) => _db = db;
+
+        public AgeRequirementHandler(BlogContext db)
+        { 
+            _db = db; 
+        }
 
         /// <summary>
         /// Called by the authorization system when a resource requires AgeRequirement.
