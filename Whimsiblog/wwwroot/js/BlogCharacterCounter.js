@@ -1,28 +1,28 @@
 ﻿(function () {
-    function parseMax(textarea, fallback) {
-        const attr = textarea.getAttribute('maxlength')
-            ?? textarea.getAttribute('data-val-length-max'); // unobtrusive validation
+    function parseMax(CharacterCounter, fallback) {
+        const attr = CharacterCounter.getAttribute('maxlength')
+            ?? CharacterCounter.getAttribute('data-val-length-max'); // unobtrusive validation
         const n = parseInt(attr, 10);
         return Number.isFinite(n) ? n : fallback;
     }
 
-    function wire(textarea, counter, fallbackMax = 1000) {
-        const max = parseMax(textarea, fallbackMax);
+    function wire(CharacterCounter, counter, fallbackMax = 1000) {
+        const max = parseMax(CharacterCounter, fallbackMax);
 
         function update() {
-            const len = (textarea.value ?? '').length;
+            const len = (CharacterCounter.value ?? '').length;
             counter.textContent = `${len} / ${max} characters`;
             counter.classList.toggle('text-danger', len > max);
         }
 
-        textarea.addEventListener('input', update);
+        CharacterCounter.addEventListener('input', update);
         update(); // initial render
     }
 
     // Public API
-    window.TextareaCounter = {
-        initByIds: function (textareaId, counterId, fallbackMax) {
-            const ta = document.getElementById(textareaId);
+    window.CharacterCounterCounter = {
+        initByIds: function (CharacterCounterId, counterId, fallbackMax) {
+            const ta = document.getElementById(CharacterCounterId);
             const counter = document.getElementById(counterId);
             if (ta && counter) wire(ta, counter, fallbackMax);
         }

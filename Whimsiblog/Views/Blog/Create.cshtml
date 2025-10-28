@@ -36,9 +36,9 @@
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
 
-    <script src="~/js/textareaCounter.js" asp-append-version="true"></script>
+    <script src="~/js/BlogCharacterCounter.js" asp-append-version="true"></script>
     <script>
         // Hook up the Description to BlogCharacterCounter and use the descCounter above
-        TextareaCounter.initByIds('Description', 'descCounter', 1000); // 1000 is the limit of chracters
+        CharacterCounterCounter.initByIds('Description', 'descCounter', 1000); // 1000 is the limit of chracters
     </script>
 }
