@@ -7,7 +7,10 @@ public class AgeSuccessToastFilter : IAsyncActionFilter
     private readonly IAuthorizationService _auth;
     private const string CookieName = "age_ok_toast";   // session one shot marker
 
-    public AgeSuccessToastFilter(IAuthorizationService auth) => _auth = auth;
+    public AgeSuccessToastFilter(IAuthorizationService auth)
+    {
+        _auth = auth;
+    }
 
     public async Task OnActionExecutionAsync(ActionExecutingContext ctx, ActionExecutionDelegate next)
     {
