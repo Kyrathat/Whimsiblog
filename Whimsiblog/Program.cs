@@ -22,14 +22,7 @@ builder.Services.Configure<OpenIdConnectOptions>(
     OpenIdConnectDefaults.AuthenticationScheme,
     options => options.TokenValidationParameters.NameClaimType = "name");
 
-// Add services to the container.
-builder.Services.AddControllersWithViews(options =>
-{
-    var policy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-    options.Filters.Add(new AuthorizeFilter(policy));
-});
+
 builder.Services.AddRazorPages()
     .AddMicrosoftIdentityUI();
 
@@ -44,13 +37,10 @@ builder.Services.AddAuthorization(options =>
 //  /!\ Handler lifetime MUST be scoped if it uses BlogContext /!\
 builder.Services.AddScoped<IAuthorizationHandler, AgeRequirementHandler>();
 
-// Global “must be signed in”, NOT Age18+, the 18+ one breaks the site
+// Add services to the container.
 builder.Services.AddControllersWithViews(o =>
 {
-    var authOnly = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-    o.Filters.Add(new AuthorizeFilter(authOnly));
+    o.Filters.Add(new AuthorizeFilter("Age18+"));
 });
 
 // - - - - - - - - - - End Section - - - - - - - - - - 
