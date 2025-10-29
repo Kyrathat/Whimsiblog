@@ -12,7 +12,10 @@ namespace Whimsiblog.Controllers
     public class ProfileController : Controller
     {
         private readonly BlogContext _db;
-        public ProfileController(BlogContext db) => _db = db;
+        public ProfileController(BlogContext db)
+        {
+            _db = db;
+        }
 
         // Pull the stable Azure AD user id
         private string? CurrentAadId() =>
