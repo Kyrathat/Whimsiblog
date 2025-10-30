@@ -1,16 +1,18 @@
 {
   "dependencies": {
-    "mssql1": {
-      "type": "mssql",
-      "connectionId": "ConnectionStrings:DefaultConnection",
-      "dynamicId": null
-    },
     "identityapp1": {
       "type": "identityapp"
     },
     "mssql2": {
+      "ignored": "true",
       "type": "mssql",
       "connectionId": "ConnectionStrings:DatabaseConnection"
+    },
+    "mssql1": {
+      "ignored": "true",
+      "type": "mssql",
+      "connectionId": "ConnectionStrings:DefaultConnection",
+      "dynamicId": null
     }
   }
 }
