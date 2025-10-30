@@ -8,6 +8,43 @@
     --text-light: #ffffff;
 }
 
+/* Navbar theme */
+.navbar {
+    background-color: var(--light);
+    border-bottom: 1px solid var(--secondary);
+}
+
+    /* Brand */
+    .navbar .navbar-brand {
+        color: var(--primary) !important;
+        font-weight: 600;
+    }
+
+    /* Links (default state) */
+    .navbar .nav-link {
+        color: var(--text-light) !important;
+    }
+
+        /* Hover */
+        .navbar .nav-link:hover {
+            color: var(--accent) !important;
+        }
+
+        /* Active link highlight */
+        .navbar .nav-link.active {
+            color: var(--text-light) !important;
+            background: linear-gradient(90deg, var(--accent), var(--secondary));
+            border-radius: .375rem; /* same radius as .btn */
+            padding-left: .75rem;
+            padding-right: .75rem;
+        }
+
+/* Toggler icon must remain visible against your background */
+.navbar-light .navbar-toggler {
+    border-color: rgba(0,0,0,.1);
+}
+
+
 /* Responsive Font Size */
 html {
     font-size: 14px;
