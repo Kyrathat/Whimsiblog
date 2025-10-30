@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,6 +27,39 @@ namespace DataAccessLayer.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // 1) Declare the many-to-many using the named shared-type join
+            modelBuilder.Entity<BlogPost>()
+                .HasMany(p => p.Tags)
+                .WithMany(t => t.BlogPosts)
+                .UsingEntity<Dictionary<string, object>>("BlogPost_Tags");
+
+            // 2) Configure the join table/columns/constraints explicitly (no constraint names)
+            var join = modelBuilder.SharedTypeEntity<Dictionary<string, object>>("BlogPost_Tags");
+
+            join.ToTable("BlogPost_Tags");
+            join.Property<int>("BlogPostID");
+            join.Property<int>("TagID");
+
+            // Composite PK (no custom name)
+            join.HasKey("BlogPostID", "TagID");
+
+            // FK: BlogPost_Tags.TagID -> Tags.TagID
+            join.HasOne<Tag>()
+                .WithMany()
+                .HasForeignKey("TagID")
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // FK: BlogPost_Tags.BlogPostID -> BlogPosts.BlogPostID
+            join.HasOne<BlogPost>()
+                .WithMany()
+                .HasForeignKey("BlogPostID")
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Optional helpful index (fine to keep)
+            join.HasIndex("TagID");
+
+
 
             // Configure Blog entity/table
             modelBuilder.Entity<Blog>(entity =>
@@ -106,13 +140,6 @@ namespace DataAccessLayer.DataAccess
                 entity.HasIndex(c => c.OwnerUserId); // a section like a "my comments" section
                 entity.HasIndex(c => new { c.BlogPostID, c.BlogCommentID });
             });
-
-            // Creating a Join Table for BlogPost_Tags.  Shows a relationship where you can have Many Tags with many Posts.
-            //Then Saves the results to a BlogPost_Tags table. 
-            modelBuilder.Entity<BlogPost>()
-        .HasMany(bp => bp.Tags)
-        .WithMany(t => t.BlogPosts)
-        .UsingEntity(j => j.ToTable("BlogPost_Tags"));
 
         }
     }
