@@ -17,7 +17,6 @@ namespace DataAccessLayer.Model
         public string? Body { get; set; } = string.Empty;
 
         public ICollection<Tag> Tags { get; set; } = new List<Tag>();
-        //public Blog? BlogID { get; set; }
 
         [StringLength(450)]
         public string? OwnerUserId { get; set; }   // AAD object id
