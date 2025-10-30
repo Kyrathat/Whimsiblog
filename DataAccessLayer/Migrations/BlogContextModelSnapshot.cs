@@ -22,17 +22,17 @@ namespace DataAccessLayer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BlogPostTag", b =>
+            modelBuilder.Entity("BlogPost_Tags", b =>
                 {
-                    b.Property<int>("BlogPostsBlogPostID")
+                    b.Property<int>("BlogPostID")
                         .HasColumnType("int");
 
-                    b.Property<int>("TagsTagID")
+                    b.Property<int>("TagID")
                         .HasColumnType("int");
 
-                    b.HasKey("BlogPostsBlogPostID", "TagsTagID");
+                    b.HasKey("BlogPostID", "TagID");
 
-                    b.HasIndex("TagsTagID");
+                    b.HasIndex("TagID");
 
                     b.ToTable("BlogPost_Tags", (string)null);
                 });
@@ -169,6 +169,7 @@ namespace DataAccessLayer.Migrations
 
                     b.ToTable("Tags");
                 });
+
             modelBuilder.Entity("DataAccessLayer.Model.UserProfile", b =>
                 {
                     b.Property<string>("Id")
@@ -202,45 +203,46 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UserProfiles", (string)null);
-                    modelBuilder.Entity("BlogPostTag", b =>
-                        {
-                            b.HasOne("DataAccessLayer.Model.BlogPost", null)
-                                .WithMany()
-                                .HasForeignKey("BlogPostsBlogPostID")
-                                .OnDelete(DeleteBehavior.Cascade)
-                                .IsRequired();
-
-                            b.HasOne("DataAccessLayer.Model.Tag", null)
-                                .WithMany()
-                                .HasForeignKey("TagsTagID")
-                                .OnDelete(DeleteBehavior.Cascade)
-                                .IsRequired();
-                        });
-
-                    modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
-                        {
-                            b.HasOne("DataAccessLayer.Model.BlogPost", "BlogPost")
-                                .WithMany()
-                                .HasForeignKey("BlogPostID")
-                                .OnDelete(DeleteBehavior.Cascade)
-                                .IsRequired();
-
-                            b.HasOne("DataAccessLayer.Model.BlogComment", "ParentComment")
-                                .WithMany("Replies")
-                                .HasForeignKey("ParentCommentID")
-                                .OnDelete(DeleteBehavior.Restrict);
-
-                            b.Navigation("BlogPost");
-
-                            b.Navigation("ParentComment");
-                        });
-
-                    modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
-                        {
-                            b.Navigation("Replies");
-                        });
-#pragma warning restore 612, 618
                 });
+
+            modelBuilder.Entity("BlogPost_Tags", b =>
+                {
+                    b.HasOne("DataAccessLayer.Model.BlogPost", null)
+                        .WithMany()
+                        .HasForeignKey("BlogPostID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Model.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
+                {
+                    b.HasOne("DataAccessLayer.Model.BlogPost", "BlogPost")
+                        .WithMany()
+                        .HasForeignKey("BlogPostID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Model.BlogComment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("BlogPost");
+
+                    b.Navigation("ParentComment");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
+                {
+                    b.Navigation("Replies");
+                });
+#pragma warning restore 612, 618
         }
     }
-    }
+}
