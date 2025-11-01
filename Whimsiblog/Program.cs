@@ -28,14 +28,6 @@ builder.Services.Configure<OpenIdConnectOptions>(
 builder.Services.AddRazorPages()
     .AddMicrosoftIdentityUI();
 
-// Authorization (Age 18+)
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Age18+",
-        policy => policy.Requirements.Add(new AgeRequirement(18)));
-});
-builder.Services.AddScoped<IAuthorizationHandler, AgeRequirementHandler>();
-
 // Controllers with global authorization policy
 builder.Services.AddControllersWithViews(o =>
 {
