@@ -54,83 +54,75 @@ namespace Whimsiblog.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "Age18+")]
-        public async Task<IActionResult> Create(BlogPost blogPost)
+        public async Task<IActionResult> Create(BlogPost blogPost, int[]? SelectedTagIDs)
         {
-            // Profanity Filter
+            // --- Profanity checks ---
             if (_filter.ContainsProfanity(blogPost.Title ?? string.Empty))
                 ModelState.AddModelError(nameof(BlogPost.Title), "Please remove profanity from the title.");
 
             if (_filter.ContainsProfanity(blogPost.Body ?? string.Empty))
                 ModelState.AddModelError(nameof(BlogPost.Body), "Please remove profanity from the body.");
 
-            // Run your existing validation
-            if (!ModelState.IsValid) return View(blogPost);
+            // If anything failed validation, redisplay with tag list
+            if (!ModelState.IsValid)
+            {
+                ViewBag.AllTags = await _context.Tags.ToListAsync();
+                return View(blogPost);
+            }
 
-            var userId = User.FindFirst("oid")?.Value // Azure AD Object ID
-                        ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                        ?? User.FindFirst("sub")?.Value; // OpenID Connect subject identifier
+            // --- Figure out current user ---
+            var userId = User.FindFirst("oid")?.Value
+                      ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                      ?? User.FindFirst("sub")?.Value;
 
-            if (userId is null) return Challenge();
+            if (string.IsNullOrEmpty(userId))
+                return Challenge(); // not signed in or cannot identify
 
             blogPost.OwnerUserId = userId;
             blogPost.OwnerUserName = User.Identity?.Name;
-            // CreatedUtc will be filled by the DB default
 
+            // --- Attach selected tags (many-to-many) ---
+            if (SelectedTagIDs is { Length: > 0 })
+            {
+                var selectedTags = await _context.Tags
+                    .Where(t => SelectedTagIDs.Contains(t.TagID))
+                    .ToListAsync();
+
+                blogPost.Tags = selectedTags; // EF will create the join rows
+            }
+
+            // --- Persist ---
             _context.BlogPosts.Add(blogPost);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
-            public async Task<IActionResult> Create(BlogPost blogPost, int[] SelectedTagIDs)
+
+
+        // GET: BlogPosts/Edit/5
+        public async Task<IActionResult> Edit(int? id)
             {
-                if (ModelState.IsValid)
-                {
-                    // Load tags from DB for the selected IDs
-                    if (SelectedTagIDs != null && SelectedTagIDs.Length > 0)
-                    {
-                        var selectedTags = await _context.Tags
-                            .Where(t => SelectedTagIDs.Contains(t.TagID))
-                            .ToListAsync();
+            if (id == null) return NotFound();
 
-                        blogPost.Tags = selectedTags;
-                    }
+            var blogPost = await _context.BlogPosts
+                .Include(p => p.Tags) // Load existing tags
+                .FirstOrDefaultAsync(p => p.BlogPostID == id);
 
-                    // Add the blog post to the database
-                    _context.Add(blogPost);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
+            if (blogPost == null) return NotFound();
 
-                // Re-populate ViewBag.AllTags in case of redisplay
-                ViewBag.AllTags = await _context.Tags.ToListAsync();
-                return View(blogPost);
+            ViewBag.AllTags = await _context.Tags.ToListAsync(); // for the multiselect
+            ViewBag.SelectedTagIDs = blogPost.Tags.Select(t => t.TagID).ToArray(); // Preselected
 
-            }
-
-
-            // GET: BlogPosts/Edit/5
-            public async Task<IActionResult> Edit(int? id)
-            {
-                if (id == null)
-                {
-                    return NotFound();
-                }
-
-                var blogPost = await _context.BlogPosts.FindAsync(id);
-                if (blogPost == null)
-                {
-                    return NotFound();
-                }
-                return View(blogPost);
-            }
+            return View(blogPost);
+        }
 
             // POST: BlogPosts/Edit/5
             // To protect from overposting attacks, enable the specific properties you want to bind to.
             // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
             [HttpPost]
             [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Edit(int id, [Bind("BlogPostID,Title,Body")] BlogPost blogPost)
-            {
+            public async Task<IActionResult> Edit(int id, [Bind("BlogPostID,Title,Body")] BlogPost blogPost, int[]? SelectedTagIDs)
+        {
                 if (id != blogPost.BlogPostID)
                 {
                     return NotFound();
@@ -153,6 +145,7 @@ namespace Whimsiblog.Controllers
                                 throw new Exception();
                             }
 
+
                         // Load the existing entity so we don't mess up the other database items
                         var entity = await _context.BlogPosts.FindAsync(id);
                         if (entity == null) return NotFound();
@@ -161,7 +154,20 @@ namespace Whimsiblog.Controllers
                         entity.Body = blogPost.Body;
                         entity.UpdatedUtc = DateTime.UtcNow; // Used to update the Profile History
 
-                        await _context.SaveChangesAsync();
+                    await _context.Entry(entity).Collection(e => e.Tags).LoadAsync();
+                    entity.Tags.Clear();
+
+                    if (SelectedTagIDs is { Length: > 0 })
+                    {
+                        var selectedTags = await _context.Tags
+                            .Where(t => SelectedTagIDs.Contains(t.TagID))
+                            .ToListAsync();
+
+                        foreach (var t in selectedTags)
+                            entity.Tags.Add(t);
+                    }
+
+                    await _context.SaveChangesAsync();
 
                     }
                     catch (DbUpdateConcurrencyException)
@@ -177,6 +183,9 @@ namespace Whimsiblog.Controllers
                     }
                     return RedirectToAction(nameof(Index));
                 }
+                // On redisplay, repopulate the tags
+                ViewBag.AllTags = await _context.Tags.ToListAsync();
+                ViewBag.SelectedTagIDs = SelectedTagIDs ?? Array.Empty<int>();
                 return View(blogPost);
             }
 
