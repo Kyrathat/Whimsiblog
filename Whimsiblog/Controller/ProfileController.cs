@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.DataAccess;
 using DataAccessLayer.Model;
+using Whimsiblog.ViewModel;
+using Microsoft.AspNetCore.Identity;
+using Azure.Identity;
 
 namespace Whimsiblog.Controllers
 {
@@ -12,9 +15,15 @@ namespace Whimsiblog.Controllers
     public class ProfileController : Controller
     {
         private readonly BlogContext _db;
-        public ProfileController(BlogContext db)
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+
+        public ProfileController(BlogContext db, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
         {
             _db = db;
+            _userManager = userManager;
+            _signInManager = signInManager;
+
         }
 
         // Pull the stable Azure AD user id
@@ -166,6 +175,35 @@ namespace Whimsiblog.Controllers
             return RedirectToAction(nameof(Edit));
         }
 
-        
+        [HttpPost]
+        public async Task<IActionResult> Register(RegistrationViewModel model)
+        {
+            IActionResult returnedTask;
+
+            if (ModelState.IsValid)
+            {
+                var user = new IdentityUser
+                {
+                    UserName = model.Name,
+                    Email = model.Email,
+                };
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    returnedTask = RedirectToAction("index", "Home");
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+                ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
+            }
+
+            returnedTask = View(model);
+
+            return returnedTask;
+        }
     }
 }
