@@ -39,23 +39,23 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" @Active("Home", "Index")" asp-area="" asp-controller="" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark @Active("Home", "Index")" asp-area="" asp-controller="" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="" asp-action="Privacy">Privacy</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" @Active("Blogs", "Index")" asp-controller="Blog" asp-action="Index">Blogs</a>
+                            <a class="nav-link text-dark @Active("Blogs", "Index")" asp-controller="Blog" asp-action="Index">Blogs</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark" @Active("BlogPosts", "Index")" asp-area="" asp-controller="BlogPosts" asp-action="Index">Blog Posts</a>
+                            <a class="nav-link text-dark @Active("BlogPosts", "Index")" asp-area="" asp-controller="BlogPosts" asp-action="Index">Blog Posts</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" @Active("BlogComments", "Index")" asp-area="" asp-controller="BlogComments" asp-action="Index">Blog Comments</a>
+                            <a class="nav-link text-dark @Active("BlogComments", "Index")" asp-area="" asp-controller="BlogComments" asp-action="Index">Blog Comments</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" @Active("Tags", "Index")" asp-area="" asp-controller="Tags" asp-action="Index">Tags</a>
+                            <a class="nav-link text-dark @Active("Tags", "Index")" asp-area="" asp-controller="Tags" asp-action="Index">Tags</a>
                         </li>
 
                         @if (User.Identity?.IsAuthenticated ?? false)
