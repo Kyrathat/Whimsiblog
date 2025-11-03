@@ -43,7 +43,7 @@ namespace Whimsiblog.Controllers
 
         // GET: BlogPosts/Create
 
-        [Authorize(Policy = "Age18+")]
+        //[Authorize(Policy = "Age18+")]
         public async Task<IActionResult> Create()
 
         {
@@ -53,7 +53,7 @@ namespace Whimsiblog.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Policy = "Age18+")]
+        //[Authorize(Policy = "Age18+")]
         public async Task<IActionResult> Create(BlogPost blogPost, int[]? SelectedTagIDs)
         {
             // --- Profanity checks ---
