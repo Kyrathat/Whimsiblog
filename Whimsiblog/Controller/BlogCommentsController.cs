@@ -66,7 +66,6 @@ namespace Whimsiblog.Controllers
         }
 
         // GET: BlogComments/Create
-        [Authorize(Policy = "Age18+")]
         public IActionResult Create(int? blogPostId, int? parentCommentId)
         {
             ViewBag.BlogPostID = new SelectList(_context.BlogPosts, "BlogPostID", "Title", blogPostId);
@@ -83,17 +82,19 @@ namespace Whimsiblog.Controllers
         // POST: BlogComments/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Policy = "Age18+")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Body,BlogPostID,ParentCommentID")] BlogComment comment)
         {
-            if (!ModelState.IsValid) return View(comment);
 
-            // Profanity filter check
-            if (_filter.ContainsProfanity(comment.Body))
+            if (_filter.ContainsProfanity(comment.Body ?? string.Empty))
+                ModelState.AddModelError(nameof(BlogComment.Body), "Please remove profanity from your comment.");
+
+            if (!ModelState.IsValid)
             {
-                throw new Exception();
+                // Must repopulate the dropdown when redisplaying the form
+                ViewBag.BlogPostID = new SelectList(_context.BlogPosts, "BlogPostID", "Title", comment.BlogPostID);
+                return View(comment);
             }
 
             comment.OwnerUserId = CurrentUserId();
@@ -128,14 +129,17 @@ namespace Whimsiblog.Controllers
         {
             if (id != comment.BlogCommentID) return NotFound();
 
-            var existing = await _context.BlogComments.FirstOrDefaultAsync(c => c.BlogCommentID == id);
-            if (existing == null) return NotFound();
+            var existing = await _context.BlogComments.FindAsync(id);
+            if (existing is null) return NotFound();
             if (!IsOwner(existing)) return Forbid();
 
-            // Profanity filter check
-            if (_filter.ContainsProfanity(comment.Body))
+            if (_filter.ContainsProfanity(comment.Body ?? string.Empty))
+                ModelState.AddModelError(nameof(BlogComment.Body), "Please remove profanity from your comment.");
+
+            if (!ModelState.IsValid)
             {
-                throw new Exception();
+                existing.Body = comment.Body; // show what the user tried to submit
+                return View(existing);
             }
 
             existing.Body = comment.Body;
