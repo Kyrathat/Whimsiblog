@@ -174,36 +174,5 @@ namespace Whimsiblog.Controllers
             // Avoid resubmits on refresh
             return RedirectToAction(nameof(Edit));
         }
-
-        [HttpPost]
-        public async Task<IActionResult> Register(RegistrationViewModel model)
-        {
-            IActionResult returnedTask;
-
-            if (ModelState.IsValid)
-            {
-                var user = new IdentityUser
-                {
-                    UserName = model.Name,
-                    Email = model.Email,
-                };
-                var result = await _userManager.CreateAsync(user, model.Password);
-
-                if (result.Succeeded)
-                {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    returnedTask = RedirectToAction("index", "Home");
-                }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
-                ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
-            }
-
-            returnedTask = View(model);
-
-            return returnedTask;
-        }
     }
 }

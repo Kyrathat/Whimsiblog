@@ -1,18 +1,26 @@
 using DataAccessLayer.DataAccess;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using System;
 using Whimsiblog.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<BlogContext>(opt =>
 {
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("LocalConnection"));
 });
+
+builder.Services.AddDefaultIdentity<IdentityUser>(o =>
+{
+    o.SignIn.RequireConfirmedAccount = false;
+})
+    .AddEntityFrameworkStores<BlogContext>();
 
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
@@ -38,22 +46,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<IAuthorizationHandler, AgeRequirementHandler>();
 
 // Add services to the container.
-builder.Services.AddControllersWithViews(o =>
-{
-    o.Filters.Add(new AuthorizeFilter("Age18+"));
-});
-
-// - - - - - - - - - - End Section - - - - - - - - - - 
-
-// Try to read a dedicated connection string for the DefaultConnection.
-var blogConnection = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// Register BlogContext in the DI container, telling EF Core to use SQL Server
-// with the resolved connection string above. This lets you inject BlogContext
-// (e.g., into controllers) and have it connect to the right database.
-builder.Services.AddDbContext<BlogContext>(options =>
-    options.UseSqlServer(blogConnection));
-
+builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -69,6 +62,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
