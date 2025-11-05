@@ -55,15 +55,19 @@ namespace Whimsiblog.Controllers
         // GET: BlogComments/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
             var comment = await _context.BlogComments
-                .Include(c => c.BlogPost)
-                .Include(c => c.ParentComment)
-                .Include(c => c.Replies) // load first-level replies
-                    .ThenInclude(r => r.Replies) // optional: load second-level replies
+                .Include("BlogPost")
+                .Include("ParentComment")
+                .Include("Replies")
+                .Include("Replies.Replies")
                 .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.BlogCommentID == id);
+                .FirstOrDefaultAsync(e => e.BlogCommentID == id);
+
 
             if (comment == null) return NotFound();
 
@@ -111,7 +115,10 @@ namespace Whimsiblog.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
             var comment = await _context.BlogComments.FindAsync(id.Value);
             if (comment == null) return NotFound();
@@ -153,7 +160,10 @@ namespace Whimsiblog.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
             var comment = await _context.BlogComments
                 .AsNoTracking()
