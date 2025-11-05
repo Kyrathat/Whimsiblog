@@ -22,6 +22,11 @@ namespace Whimsiblog.Controllers
             _context = context;
         }
 
+        private bool HasProfanity(string? text)
+        {
+            return _filter.ContainsProfanity(text ?? string.Empty);
+        }
+
         // Helper to get current user's ID from claims
         private string? CurrentUserId()
         {
@@ -86,23 +91,19 @@ namespace Whimsiblog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Body,BlogPostID,ParentCommentID")] BlogComment comment)
         {
-
-            if (_filter.ContainsProfanity(comment.Body ?? string.Empty))
-                ModelState.AddModelError(nameof(BlogComment.Body), "Please remove profanity from your comment.");
+            if (HasProfanity(comment.Body))
+                ModelState.AddModelError(nameof(BlogComment.Body), "Please remove profanity.");
 
             if (!ModelState.IsValid)
             {
-                // Must repopulate the dropdown when redisplaying the form
+                // repopulate dropdowns etc.
                 ViewBag.BlogPostID = new SelectList(_context.BlogPosts, "BlogPostID", "Title", comment.BlogPostID);
                 return View(comment);
             }
 
-            comment.OwnerUserId = CurrentUserId();
-            comment.OwnerUserName = User.Identity?.Name;
-
+            // only here do we write
             _context.BlogComments.Add(comment);
             await _context.SaveChangesAsync();
-
             return RedirectToAction(nameof(Index));
         }
 
@@ -125,26 +126,26 @@ namespace Whimsiblog.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BlogCommentID,Body")] BlogComment comment)
+        public async Task<IActionResult> Edit(int id, [Bind("BlogCommentID,Body")] BlogComment input)
         {
-            if (id != comment.BlogCommentID) return NotFound();
+            if (id != input.BlogCommentID) return NotFound();
 
             var existing = await _context.BlogComments.FindAsync(id);
             if (existing is null) return NotFound();
             if (!IsOwner(existing)) return Forbid();
 
-            if (_filter.ContainsProfanity(comment.Body ?? string.Empty))
+            if (HasProfanity(input.Body))
                 ModelState.AddModelError(nameof(BlogComment.Body), "Please remove profanity from your comment.");
 
             if (!ModelState.IsValid)
             {
-                existing.Body = comment.Body; // show what the user tried to submit
+                // Show what the user tried to submit
+                existing.Body = input.Body;
                 return View(existing);
             }
 
-            existing.Body = comment.Body;
+            existing.Body = input.Body;
             await _context.SaveChangesAsync();
-
             return RedirectToAction(nameof(Index));
         }
 
