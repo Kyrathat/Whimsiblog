@@ -1,4 +1,6 @@
 ﻿using DataAccessLayer.Model;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.DataAccess
 {
-    public class BlogContext : DbContext
+    public class BlogContext : IdentityDbContext<IdentityUser>
     {
         public BlogContext(DbContextOptions<BlogContext> options)
             : base (options)
