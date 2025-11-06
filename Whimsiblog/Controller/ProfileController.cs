@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.DataAccess;
 using DataAccessLayer.Model;
+using Whimsiblog.ViewModel;
+using Microsoft.AspNetCore.Identity;
+using Azure.Identity;
 
 namespace Whimsiblog.Controllers
 {
@@ -12,9 +15,15 @@ namespace Whimsiblog.Controllers
     public class ProfileController : Controller
     {
         private readonly BlogContext _db;
-        public ProfileController(BlogContext db)
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+
+        public ProfileController(BlogContext db, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
         {
             _db = db;
+            _userManager = userManager;
+            _signInManager = signInManager;
+
         }
 
         // Pull the stable Azure AD user id
@@ -165,7 +174,5 @@ namespace Whimsiblog.Controllers
             // Avoid resubmits on refresh
             return RedirectToAction(nameof(Edit));
         }
-
-        
     }
 }
