@@ -48,8 +48,18 @@ namespace Whimsiblog.Controllers
                 .OrderBy(b => b.Name)
                 .ToListAsync();
 
-            // pass the current query back to the view for the search box
+            // Decide empty message here
+            string? emptyMessage = null;
+            if (!blogs.Any())
+            {
+                emptyMessage = string.IsNullOrWhiteSpace(q)
+                    ? "No blogs yet. Be the first to create one!"
+                    : $"No results for \"{q}\".";
+            }
+
             ViewData["q"] = q;
+            ViewData["EmptyMessage"] = emptyMessage;
+
             return View(blogs);
         }
 

@@ -5,6 +5,7 @@
     ViewData["Title"] = "Blogs";
     var q = (string?)ViewData["q"] ?? "";
     var isAuth = User?.Identity?.IsAuthenticated ?? false;
+    var emptyMessage = ViewData["EmptyMessage"] as string;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -22,18 +23,11 @@
     </div>
 </div>
 
-@if (Model == null || !Model.Any())
+@if (!Model.Any())
 {
-        <div class="alert alert-info">
-        @if (string.IsNullOrWhiteSpace(q))
-        {
-                    <span>No blogs yet. Be the first to create one!</span>
-        }
-        else
-        {
-                    <span>No results for "<strong>@q</strong>".</span>
-        }
-        </div>
+    <div class="alert alert-info">
+        @emptyMessage
+    </div>
 }
 else
 {
