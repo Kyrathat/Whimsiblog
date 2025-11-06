@@ -21,6 +21,6 @@ namespace DataAccessLayer.DataAccess
         public DbSet<BlogPost> BlogPosts { get; set; } = default!;
         public DbSet<BlogComment> BlogComments { get; set; } = default!;
         public DbSet<Tag> Tags { get; set; } = default!;
-        public DbSet<User> Users { get; set; } = default!;
+        public DbSet<UserProfile> Users { get; set; } = default!;
     }
 }
