@@ -122,7 +122,7 @@ namespace Whimsiblog.Controllers
                          ?? new UserProfile
                          {
                              Id = id,
-                             DisplayName = User.Identity?.Name,
+                             UserName = User.Identity?.Name,
                              Email = User.FindFirst(ClaimTypes.Email)?.Value
                          };
 

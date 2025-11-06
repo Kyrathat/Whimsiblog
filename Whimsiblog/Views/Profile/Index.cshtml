@@ -31,11 +31,11 @@
             <div>
                 @* Prefer DisplayName; if it's empty, show email; if both empty, fallback text *@
                 <h4 class="card-title mb-1">
-                    @(string.IsNullOrWhiteSpace(Model.DisplayName)
+                    @(string.IsNullOrWhiteSpace(Model.UserName)
                             ? (string.IsNullOrWhiteSpace(Model.Email) ? "Profile" : Model.Email)
-                            : Model.DisplayName)
+                                        : Model.UserName)
                 </h4>
-                @if (!string.IsNullOrWhiteSpace(Model.Email) && !string.Equals(Model.Email, Model.DisplayName, StringComparison.OrdinalIgnoreCase))
+                @if (!string.IsNullOrWhiteSpace(Model.Email) && !string.Equals(Model.Email, Model.UserName, StringComparison.OrdinalIgnoreCase))
                 {
                         <div class="text-muted">@Model.Email</div>
                 }

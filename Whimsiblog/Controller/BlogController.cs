@@ -20,37 +20,29 @@ namespace Whimsiblog.Controllers
             _db = db;
         }
 
-        private string? CurrentUserId()
-        {
-            // Works for Azure AD / Microsoft.Identity.Web
-            return User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                // Azure AD object id claim (if the above is null)
-                ?? User?.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
-        }
-
-        private bool IsOwner(Blog b) =>
-            !string.IsNullOrEmpty(b.PrimaryOwnerUserId) &&
-            b.PrimaryOwnerUserId == CurrentUserId();
-
-
         // GET: /Blog
-        public async Task<IActionResult> Index(string? q)
+        public async Task<IActionResult> Index(string? UserName)
         {
-            var query = _db.Blogs.AsNoTracking();
+            IActionResult resultReturned;
 
-            if (!string.IsNullOrWhiteSpace(q))
+            if (string.IsNullOrEmpty(UserName))
             {
-                q = q.Trim();
-                query = query.Where(b => b.Name.Contains(q));
+                // Could show all blogs or redirect somewhere
+                resultReturned = RedirectToAction("All");
             }
 
-            var blogs = await query
-                .OrderBy(b => b.Name)
-                .ToListAsync();
+            var blog = _db.Blogs
+                .Include(b => b.User)
+                .FirstOrDefault(b => b.User.UserName == UserName);
 
-            // pass the current query back to the view for the search box
-            ViewData["q"] = q;
-            return View(blogs);
+            if (blog == null)
+            {
+                resultReturned = NotFound();
+            }
+
+            resultReturned = View(blog);
+
+            return resultReturned;
         }
 
         // GET: /Blog/Details/5
@@ -88,8 +80,6 @@ namespace Whimsiblog.Controllers
                 blog.Description = DataAccessLayer.Helpers.BlogDescriptionPlaceholderText.RandomText();
             }
 
-            blog.PrimaryOwnerUserId = CurrentUserId();
-            blog.PrimaryOwnerUserName = User.Identity?.Name;
             blog.CreatedUtc = DateTime.UtcNow;
 
             _db.Blogs.Add(blog);
@@ -107,8 +97,6 @@ namespace Whimsiblog.Controllers
             var blog = await _db.Blogs.FindAsync(id.Value);
             if (blog == null) return NotFound();
 
-            if (!IsOwner(blog)) return Forbid(); // Owner check to make sure no one else can edit
-
             return View(blog);
         }
 
@@ -123,7 +111,7 @@ namespace Whimsiblog.Controllers
 
             var existing = await _db.Blogs.FirstOrDefaultAsync(b => b.BlogId == id);
             if (existing == null) return NotFound();
-            if (!IsOwner(existing)) return Forbid();
+           
 
             existing.Name = blog.Name;
             existing.Description = blog.Description;
@@ -143,7 +131,6 @@ namespace Whimsiblog.Controllers
             var blog = await _db.Blogs.AsNoTracking().FirstOrDefaultAsync(b => b.BlogId == id.Value);
             if (blog == null) return NotFound();
 
-            if (!IsOwner(blog)) return Forbid(); // Another owner-check
 
             return View(blog);
         }
@@ -157,7 +144,6 @@ namespace Whimsiblog.Controllers
             var blog = await _db.Blogs.FindAsync(id);
             if (blog != null)
             {
-                if (!IsOwner(blog)) return Forbid(); // Final (for now) owner-check
                 _db.Blogs.Remove(blog);
                 await _db.SaveChangesAsync();
             }

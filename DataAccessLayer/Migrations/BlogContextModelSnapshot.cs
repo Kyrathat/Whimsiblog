@@ -22,19 +22,19 @@ namespace DataAccessLayer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BlogPost_Tags", b =>
+            modelBuilder.Entity("BlogPostTag", b =>
                 {
-                    b.Property<int>("BlogPostID")
+                    b.Property<int>("BlogPostsBlogPostID")
                         .HasColumnType("int");
 
-                    b.Property<int>("TagID")
+                    b.Property<int>("TagsTagID")
                         .HasColumnType("int");
 
-                    b.HasKey("BlogPostID", "TagID");
+                    b.HasKey("BlogPostsBlogPostID", "TagsTagID");
 
-                    b.HasIndex("TagID");
+                    b.HasIndex("TagsTagID");
 
-                    b.ToTable("BlogPost_Tags", (string)null);
+                    b.ToTable("BlogPostTag");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Model.Blog", b =>
@@ -46,9 +46,7 @@ namespace DataAccessLayer.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BlogId"));
 
                     b.Property<DateTime?>("CreatedUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
@@ -56,22 +54,17 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(75)
+                        .HasColumnType("nvarchar(75)");
 
-                    b.Property<string>("PrimaryOwnerUserId")
-                        .HasMaxLength(450)
+                    b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("PrimaryOwnerUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("BlogId");
 
-                    b.HasIndex("PrimaryOwnerUserId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("Blogs", (string)null);
+                    b.ToTable("Blogs");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
@@ -173,8 +166,7 @@ namespace DataAccessLayer.Migrations
             modelBuilder.Entity("DataAccessLayer.Model.UserProfile", b =>
                 {
                     b.Property<string>("Id")
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Avatar")
                         .HasColumnType("int");
@@ -183,41 +175,44 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("DisplayName")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserProfiles", (string)null);
+                    b.ToTable("UserProfiles");
                 });
 
-            modelBuilder.Entity("BlogPost_Tags", b =>
+            modelBuilder.Entity("BlogPostTag", b =>
                 {
                     b.HasOne("DataAccessLayer.Model.BlogPost", null)
                         .WithMany()
-                        .HasForeignKey("BlogPostID")
+                        .HasForeignKey("BlogPostsBlogPostID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DataAccessLayer.Model.Tag", null)
                         .WithMany()
-                        .HasForeignKey("TagID")
+                        .HasForeignKey("TagsTagID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Model.Blog", b =>
+                {
+                    b.HasOne("DataAccessLayer.Model.UserProfile", "User")
+                        .WithMany("Blogs")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
@@ -241,6 +236,11 @@ namespace DataAccessLayer.Migrations
             modelBuilder.Entity("DataAccessLayer.Model.BlogComment", b =>
                 {
                     b.Navigation("Replies");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Model.UserProfile", b =>
+                {
+                    b.Navigation("Blogs");
                 });
 #pragma warning restore 612, 618
         }
