@@ -5,29 +5,21 @@
 
 <h1>Delete Blog</h1>
 
-@if (Model is null)
-{
-        <!-- Check if blog exists, just in case -->
-        <div class="alert alert-danger">Blog not found.</div>
-}
-else
-{
-        <div class="alert alert-warning">
-            <strong>Are you sure?</strong> This will permanently delete the blog.
-        </div>
+<div class="alert alert-warning">
+    <strong>Are you sure?</strong> This will permanently delete the blog.
+</div>
 
-        <dl class="row">
-            <dt class="col-sm-2">Id</dt>
-            <dd class="col-sm-10">@Model.BlogId</dd>
+<dl class="row">
+    <dt class="col-sm-2">Id</dt>
+    <dd class="col-sm-10">@Model.BlogId</dd>
 
-            <dt class="col-sm-2">Name</dt>
-            <dd class="col-sm-10">@Model.Name</dd>
-        </dl>
+    <dt class="col-sm-2">Name</dt>
+    <dd class="col-sm-10">@Model.Name</dd>
+</dl>
 
-        <form asp-action="Delete" method="post">
-        @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="BlogId" />
-            <button type="submit" class="btn btn-danger">Delete</button>
-            <a asp-action="Details" asp-route-id="@Model.BlogId" class="btn btn-secondary">Cancel</a>
-        </form>
-}
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="BlogId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Details" asp-route-id="@Model.BlogId" class="btn btn-secondary">Cancel</a>
+</form>
