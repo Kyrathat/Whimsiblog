@@ -20,6 +20,16 @@ namespace Whimsiblog.Controllers
             _context = context;
         }
 
+        // A helper for the profanity
+        private bool HasProfanity(string? text)
+        {
+            text = text?.Trim();
+            var result = !string.IsNullOrWhiteSpace(text) && _filter.ContainsProfanity(text);
+            Console.WriteLine($"[ProfanityCheck] \"{text}\" => {result}"); // Debug help
+            return result;
+        }
+
+
         // GET: Tags
         public async Task<IActionResult> Index()
         {
@@ -57,26 +67,32 @@ namespace Whimsiblog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("TagID,Name")] Tag tag)
         {
-            if (ModelState.IsValid)
-            {
-                if (await TagNameExistsAsync(tag.Name))
-                {
-                    ModelState.AddModelError("Name", "A tag with this name already exists.");
-                    return View(tag);
-                }
+            // Normalize once
+            tag.Name = (tag.Name ?? string.Empty).Trim();
 
-                if (!_filter.ContainsProfanity(tag.Name))
-                {
-                    _context.Add(tag);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                else
-                {
-                    throw new Exception();
-                }
+            // Profanity check
+            if (HasProfanity(tag.Name))
+            {
+                ModelState.AddModelError(nameof(Tag.Name), "Profanity is not allowed in tag names.");
             }
-            return View(tag);
+
+            // Then duplicate name check
+            if (await TagNameExistsAsync(tag.Name))
+            {
+                ModelState.AddModelError(nameof(Tag.Name), "A tag with this name already exists.");
+            }
+
+            // If failed, show form again
+            if (!ModelState.IsValid)
+            {
+                return View(tag);
+            }
+
+            // Finally, save
+            _context.Tags.Add(tag);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Tags/Edit/5
@@ -208,12 +224,24 @@ namespace Whimsiblog.Controllers
         [HttpPost("/tags/add")]
         public IActionResult AddTag([FromBody] string name)
         {
-            if (string.IsNullOrWhiteSpace(name)) return BadRequest();
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest("Tag name is required.");
 
-            var existing = _context.Tags.FirstOrDefault(t => t.Name == name);
-            if (existing != null) return Conflict("Tag already exists");
+            var normalized = name.Trim();
 
-            var newTag = new Tag { Name = name };
+            // profanity check
+            if (HasProfanity(normalized))
+                return BadRequest("Profanity is not allowed in tag names.");
+
+            // duplicate check
+            var existing = _context.Tags
+                .FirstOrDefault(t => t.Name.ToLower() == normalized.ToLower());
+
+            if (existing != null)
+                return Conflict("Tag already exists.");
+
+            // Save
+            var newTag = new Tag { Name = normalized };
             _context.Tags.Add(newTag);
             _context.SaveChanges();
 
