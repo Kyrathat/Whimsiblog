@@ -109,8 +109,8 @@ namespace Whimsiblog.Controllers
 
             if (ModelState.IsValid)
             {
-                if (await TagNameExistsAsync(tag.Name, tag.TagID))
-                {
+                if (await TagNameExistsAsync(tag.Name, tag.TagID)) // tag.TagID is used here as a security check. It's checking
+                {                                                        // if the tag being edited the same one the URL says it is.
                     ModelState.AddModelError("Name", "A tag with this name already exists.");
                     return View(tag);
                 }
