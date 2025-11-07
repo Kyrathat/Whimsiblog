@@ -23,9 +23,14 @@ namespace Whimsiblog.Controllers
         // A helper for the profanity
         private bool HasProfanity(string? text)
         {
-            text = text?.Trim();
-            var result = !string.IsNullOrWhiteSpace(text) && !_filter.ContainsProfanity(text);
-            Console.WriteLine($"[ProfanityCheck] \"{text}\" => {result}"); // Debug help
+            var trimmed = text.Trim();
+
+            // Use the library's main detection API
+            var hits = _filter.DetectAllProfanities(trimmed);
+
+            var result = hits != null && hits.Count > 0;
+
+            Console.WriteLine($"[ProfanityCheck] \"{trimmed}\" => {result}"); // Debugging helper
             return result;
         }
 
@@ -72,9 +77,7 @@ namespace Whimsiblog.Controllers
 
             // Profanity check
             if (HasProfanity(tag.Name))
-            {
-                ModelState.AddModelError(nameof(Tag.Name), "Profanity is not allowed in tag names.");
-            }
+                ModelState.AddModelError(nameof(Tag.Name), "Please remove profanity.");
 
             // Then duplicate name check
             if (await TagNameExistsAsync(tag.Name))
