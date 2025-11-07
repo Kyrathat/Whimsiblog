@@ -24,7 +24,7 @@ namespace Whimsiblog.Controllers
         private bool HasProfanity(string? text)
         {
             text = text?.Trim();
-            var result = !string.IsNullOrWhiteSpace(text) && _filter.ContainsProfanity(text);
+            var result = !string.IsNullOrWhiteSpace(text) && !_filter.ContainsProfanity(text);
             Console.WriteLine($"[ProfanityCheck] \"{text}\" => {result}"); // Debug help
             return result;
         }
