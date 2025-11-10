@@ -1,0 +1,6 @@
+﻿@* Shows a success toast if TempData["AuthSuccess"] is set *@
+@if (TempData["AuthSuccess"] is string toastMsg)
+{
+    <div class="toast toast-success">@toastMsg</div>
+    <script>hideSuccessToastsAfter(3000);</script>
+}

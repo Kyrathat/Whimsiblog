@@ -1,24 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
-    @using System
-@{
-    // Grab the current route values so we can highlight the matching nav item.
-    // These come from the executed action/controller for the current request.
-    string? currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-    string? currentAction = ViewContext.RouteData.Values["action"]?.ToString();
-
-    // Helper: returns "active" when the given controller/action matches the current page.
-    // - Default action is "Index" so you can call Active("Home") or Active("Profile").
-    // - Uses OrdinalIgnoreCase for predictable case-insensitive comparison.
-    // - If it doesn't match, return empty string so the class isn't added.
-    string Active(string controller, string action = "Index") =>
-        string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase) &&
-        string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
-            ? "active"
-            : "";
-}
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,69 +10,17 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">Whimsiblog</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark @Active("Home", "Index")" asp-area="" asp-controller="" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark @Active("Blogs", "Index")" asp-controller="Blog" asp-action="Index">Blogs</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark @Active("BlogPosts", "Index")" asp-area="" asp-controller="BlogPosts" asp-action="Index">Blog Posts</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark @Active("BlogComments", "Index")" asp-area="" asp-controller="BlogComments" asp-action="Index">Blog Comments</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark @Active("Tags", "Index")" asp-area="" asp-controller="Tags" asp-action="Index">Tags</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
-                        </li>
-
-                        @if (User.Identity?.IsAuthenticated ?? false)
-                            {
-                            <li class="nav-item">
-                                <a class="nav-link @Active("Profile", "Index")"
-                                asp-area=""
-                                asp-controller="Profile"
-                                asp-action="Index">
-                                    Profile
-                                </a>
-                            </li>
-                           }
-                    </ul>
-                <partial name="_LoginPartial" />
-                </div>
-            </div>
-        </nav>
+        <partial name="_NavBar" />
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    @* The 18+ toast *@
     <script src="~/js/toast.js" asp-append-version="true"></script>
-
-    @if (TempData["AuthSuccess"] is string toastMsg)
-    {
-        <div class="toast toast-success">@toastMsg</div> 
-        <script>hideSuccessToastsAfter(3000);</script> @* 1000 = 1 second *@
-    }
+    <partial name="_StatusToast" />
 
     <footer class="border-top footer text-muted">
         <div class="container">

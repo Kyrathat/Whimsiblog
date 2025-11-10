@@ -1,0 +1,57 @@
+﻿@using System
+
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    string Active(string controller, string action = "Index") =>
+        string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
+            ? "active"
+            : "";
+}
+
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
+    <div class="container">
+        <a class="navbar-brand" asp-area="" asp-page="/Index">Whimsiblog</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+            <ul class="navbar-nav flex-grow-1">
+                <li class="nav-item">
+                    <a class="nav-link text-dark @Active("Home", "Index")" asp-controller="Home" asp-action="Index">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark @Active("Blog", "Index")" asp-controller="Blog" asp-action="Index">Blogs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark @Active("BlogPosts", "Index")" asp-controller="BlogPosts" asp-action="Index">Blog Posts</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark @Active("BlogComments", "Index")" asp-controller="BlogComments" asp-action="Index">Blog Comments</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark @Active("Tags", "Index")" asp-controller="Tags" asp-action="Index">Tags</a>
+                </li>
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark @Active("Profile", "Index")"
+                           asp-controller="Profile"
+                           asp-action="Index">
+                            Profile
+                        </a>
+                    </li>
+                }
+
+            </ul>
+
+            <partial name="_LoginPartial" />
+        </div>
+    </div>
+</nav>
