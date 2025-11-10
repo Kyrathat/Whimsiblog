@@ -1,7 +1,7 @@
 ﻿(function () {
     function parseMax(CharacterCounter, fallback) {
         const attr = CharacterCounter.getAttribute('maxlength')
-            ?? CharacterCounter.getAttribute('data-val-length-max'); // unobtrusive validation
+            ?? CharacterCounter.getAttribute('data-val-length-max'); // validation
         const n = parseInt(attr, 10);
         return Number.isFinite(n) ? n : fallback;
     }
@@ -27,4 +27,13 @@
             if (ta && counter) wire(ta, counter, fallbackMax);
         }
     };
+
+    // Auto-init for this page (Description + descCounter)
+    document.addEventListener('DOMContentLoaded', function () {
+        const ta = document.getElementById('Description');
+        const counter = document.getElementById('descCounter');
+        if (ta && counter) {
+            wire(ta, counter, 1000);
+        }
+    });
 })();

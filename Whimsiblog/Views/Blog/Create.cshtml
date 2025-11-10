@@ -1,4 +1,5 @@
 ﻿@model DataAccessLayer.Model.Blog
+
 @{
     ViewData["Title"] = "Create Blog";
 }
@@ -17,17 +18,16 @@
     </div>
 
     <div class="mb-3">
-    <label asp-for="Description" class="form-label"></label>
-    <textarea asp-for="Description"
-              class="form-control"
-              rows="4"
-              maxlength="1000"
-              placeholder="Tell readers what this blog is about…"></textarea>
-    <span asp-validation-for="Description" class="text-danger"></span>
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description"
+                  class="form-control"
+                  rows="4"
+                  maxlength="1000"
+                  placeholder="Tell readers what this blog is about…"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
 
-    <!-- Live counter output -->
-    <small id="descCounter" class="text-muted d-block mt-1"></small>
-</div>
+        <small id="descCounter" class="text-muted d-block mt-1"></small>
+    </div>
 
     <button type="submit" class="btn btn-primary">Create</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
@@ -35,10 +35,5 @@
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
-
     <script src="~/js/BlogCharacterCounter.js" asp-append-version="true"></script>
-    <script>
-        // Hook up the Description to BlogCharacterCounter and use the descCounter above
-        CharacterCounterCounter.initByIds('Description', 'descCounter', 1000); // 1000 is the limit of chracters
-    </script>
 }
