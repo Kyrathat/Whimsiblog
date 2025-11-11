@@ -72,23 +72,25 @@ namespace Whimsiblog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("TagID,Name")] Tag tag)
         {
+            // If failed, show form again
+            if (!ModelState.IsValid)
+            {
+                return View(tag);
+            }
+
             // Normalize once
             tag.Name = (tag.Name ?? string.Empty).Trim();
 
             // Profanity check
             if (HasProfanity(tag.Name))
+            {
                 ModelState.AddModelError(nameof(Tag.Name), "Please remove profanity.");
+            }
 
             // Then duplicate name check
             if (await TagNameExistsAsync(tag.Name))
             {
                 ModelState.AddModelError(nameof(Tag.Name), "A tag with this name already exists.");
-            }
-
-            // If failed, show form again
-            if (!ModelState.IsValid)
-            {
-                return View(tag);
             }
 
             // Finally, save
