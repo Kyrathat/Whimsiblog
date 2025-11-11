@@ -38,40 +38,6 @@
 </form>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-     
-        <script> // Helpful counter code from ChatGPT
-            (function () {
-                var ta = document.getElementById('Description');
-                var counter = document.getElementById('descCounter');
-                if (!ta || !counter) return;
-
-                // Prefer maxlength, fall back to data-val-length-max, then 1000
-                function getMax() {
-                    var attr = ta.getAttribute('maxlength');
-                    if (attr) return parseInt(attr);
-                    var dataMax = ta.getAttribute('data-val-length-max');
-                    if (dataMax) return parseInt(dataMax);
-                    return 1000;
-                }
-
-                var max = getMax();
-
-                function update() {
-                    var len = (ta.value || '').length;
-                    counter.textContent = len + ' / ' + max + ' characters';
-                    // Optional: color hint when near/over limit
-                    if (len > max) {
-                        counter.classList.add('text-danger');
-                    } else {
-                        counter.classList.remove('text-danger');
-                    }
-                }
-
-                ta.addEventListener('input', update);
-                update(); // set initial value on page load
-            })();
-        </script>
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="~/js/BlogCharacterCounter.js" asp-append-version="true"></script>
 }
