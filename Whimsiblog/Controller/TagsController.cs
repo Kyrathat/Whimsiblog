@@ -91,6 +91,7 @@ namespace Whimsiblog.Controllers
             if (await TagNameExistsAsync(tag.Name))
             {
                 ModelState.AddModelError(nameof(Tag.Name), "A tag with this name already exists.");
+                return View(tag);
             }
 
             // Finally, save
