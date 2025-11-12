@@ -13,7 +13,7 @@ using Whimsiblog.Helpers;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<BlogContext>(opt =>
 {
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("LocalConnection"));
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 builder.Services.AddDefaultIdentity<IdentityUser>(o =>
