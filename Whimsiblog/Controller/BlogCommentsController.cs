@@ -22,6 +22,11 @@ namespace Whimsiblog.Controllers
             _context = context;
         }
 
+        private bool HasProfanity(string? text)
+        {
+            return _filter.ContainsProfanity(text ?? string.Empty);
+        }
+
         // Helper to get current user's ID from claims
         private string? CurrentUserId()
         {
@@ -50,15 +55,19 @@ namespace Whimsiblog.Controllers
         // GET: BlogComments/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
             var comment = await _context.BlogComments
-                .Include(c => c.BlogPost)
-                .Include(c => c.ParentComment)
-                .Include(c => c.Replies) // load first-level replies
-                    .ThenInclude(r => r.Replies) // optional: load second-level replies
+                .Include("BlogPost")
+                .Include("ParentComment")
+                .Include("Replies")
+                .Include("Replies.Replies")
                 .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.BlogCommentID == id);
+                .FirstOrDefaultAsync(e => e.BlogCommentID == id);
+
 
             if (comment == null) return NotFound();
 
@@ -66,7 +75,6 @@ namespace Whimsiblog.Controllers
         }
 
         // GET: BlogComments/Create
-        [Authorize(Policy = "Age18+")]
         public IActionResult Create(int? blogPostId, int? parentCommentId)
         {
             ViewBag.BlogPostID = new SelectList(_context.BlogPosts, "BlogPostID", "Title", blogPostId);
@@ -83,25 +91,23 @@ namespace Whimsiblog.Controllers
         // POST: BlogComments/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Policy = "Age18+")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Body,BlogPostID,ParentCommentID")] BlogComment comment)
         {
-            if (!ModelState.IsValid) return View(comment);
+            if (HasProfanity(comment.Body))
+                ModelState.AddModelError(nameof(BlogComment.Body), "Please remove profanity.");
 
-            // Profanity filter check
-            if (_filter.ContainsProfanity(comment.Body))
+            if (!ModelState.IsValid)
             {
-                throw new Exception();
+                // repopulate dropdowns etc.
+                ViewBag.BlogPostID = new SelectList(_context.BlogPosts, "BlogPostID", "Title", comment.BlogPostID);
+                return View(comment);
             }
 
-            comment.OwnerUserId = CurrentUserId();
-            comment.OwnerUserName = User.Identity?.Name;
-
+            // only here do we write
             _context.BlogComments.Add(comment);
             await _context.SaveChangesAsync();
-
             return RedirectToAction(nameof(Index));
         }
 
@@ -109,7 +115,10 @@ namespace Whimsiblog.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
             var comment = await _context.BlogComments.FindAsync(id.Value);
             if (comment == null) return NotFound();
@@ -124,23 +133,26 @@ namespace Whimsiblog.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BlogCommentID,Body")] BlogComment comment)
+        public async Task<IActionResult> Edit(int id, [Bind("BlogCommentID,Body")] BlogComment input)
         {
-            if (id != comment.BlogCommentID) return NotFound();
+            if (id != input.BlogCommentID) return NotFound();
 
-            var existing = await _context.BlogComments.FirstOrDefaultAsync(c => c.BlogCommentID == id);
-            if (existing == null) return NotFound();
+            var existing = await _context.BlogComments.FindAsync(id);
+            if (existing is null) return NotFound();
             if (!IsOwner(existing)) return Forbid();
 
-            // Profanity filter check
-            if (_filter.ContainsProfanity(comment.Body))
+            if (HasProfanity(input.Body))
+                ModelState.AddModelError(nameof(BlogComment.Body), "Please remove profanity from your comment.");
+
+            if (!ModelState.IsValid)
             {
-                throw new Exception();
+                // Show what the user tried to submit
+                existing.Body = input.Body;
+                return View(existing);
             }
 
-            existing.Body = comment.Body;
+            existing.Body = input.Body;
             await _context.SaveChangesAsync();
-
             return RedirectToAction(nameof(Index));
         }
 
@@ -148,7 +160,10 @@ namespace Whimsiblog.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
             var comment = await _context.BlogComments
                 .AsNoTracking()
